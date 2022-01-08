@@ -13,7 +13,9 @@ runr_setup(run_name, runr, pre_runrs = NULL, post_runrs = NULL)
 
 \item{pre_runrs}{A function or list of functions to execute \emph{before} each model run. These functions should be caused for side-effects and will each receive a list of all the model params for the given run as input. Each will be executed at every iteration. Optional.}
 
-\item{post_runrs}{A function or list of functions to execute \emph{after} each model run. These functions should be caused for side-effects and will receive no input. Each will be executed at every iteration. Optional.}
+\item{post_runrs}{A function or list of functions to execute \emph{after} each model run. These functions should be caused for side-effects. Each will be executed at every iteration; and, if the user specifies an \code{output_dir}, this value will be passed to to each function. Optional.}
+
+\item{output_dir}{A path to be given to the \code{post_runrs}, if required. Optional.}
 }
 \description{
 \code{runr_setup()} is required to set up the model runs. Its job is to specify the functions you want to repeat for each iteration of your grid search.

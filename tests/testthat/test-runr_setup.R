@@ -14,14 +14,26 @@ test_that("runr_setup successfully stores options", {
   expect_equal(options("bladerunr_post_runrs")[[1]], list(foo, bar))
 })
 
+test_that("runr accepts only one main function.", {
+  foo <- function(x) 0
+  bar <- function(x) 0
+
+  expect_error(runr_setup(
+    run_name = "test",
+    pre_runrs = list(foo),
+    runr = list(foo, bar),
+    post_runrs = list(foo, foo)
+  ), "A single runr function is required.")
+})
+
 test_that("runr_setup can have NULL values for pre or post runners but not the runr.", {
   foo <- function(x) 0
   expect_error(runr_setup(
     run_name = "test",
-    pre_runrs = list(foo, "not a function"),
+    pre_runrs = list(foo),
     runr = NULL,
     post_runrs = list(foo, foo)
-  ), "A runr function is required.")
+  ), "A single runr function is required.")
 
 
   runr_setup(

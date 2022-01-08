@@ -5,9 +5,10 @@
 #' There are three types of callbacks bladerunr can use at each iteration: pre-runrs, runrs, and post-runrs. This enables the user to break up their functions into smaller chunks. It also expects that the model may involve files being generated, either as inputs, outputs, or both; the callbacks enable the user to deal with these as they wish.
 #'
 #' @param run_name The name of the run. Used for output folder naming.
-#' @param runr A function or list of functions to be executed as the main test. Function should produce side-effects as no input or output will be held.
+#' @param runr A single function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runrs.
 #' @param pre_runrs A function or list of functions to execute *before* each model run. These functions should be caused for side-effects and will each receive a list of all the model params for the given run as input. Each will be executed at every iteration. Optional.
-#' @param post_runrs A function or list of functions to execute *after* each model run. These functions should be caused for side-effects and will receive no input. Each will be executed at every iteration. Optional.
+#' @param post_runrs A function or list of functions to execute *after* each model run. If the main runr returned a value, it will be passed to each of these functions. Each will be executed at every iteration; and, if the user specifies an `output_dir`, this value will be passed to to each function. Optional.
+#' @param output_dir A path to be given to the `post_runrs`, if required. Optional.
 #'
 #' @importFrom purrr map_lgl
 #'
@@ -25,16 +26,17 @@
 #'   # Transform and save model results
 #' }
 #'
-#' runr_setup("test-run", foo_before, foo_run, foo_after)
-runr_setup <- function(run_name, runr, pre_runrs = NULL, post_runrs = NULL) {
+#' runr_setup("test-run", foo_before, foo_run, foo_after, "path/to/save/outputs")
+runr_setup <- function(run_name, runr, pre_runrs = NULL, post_runrs = NULL, output_dir = FALSE) {
   check_args(
     "Run name must be a character vector of length 1.",
     is.character(run_name), length(run_name) == 1
   )
   check_args(
-    "A runr function is required.",
-    !is.null(runr)
+    "A single runr function is required.",
+    !is.null(runr), length(runr) == 1
   )
+
 
   pre_runrs <- standardise_callbacks(pre_runrs, "Pre-runrs")
   runr <- standardise_callbacks(runr, "runr")
