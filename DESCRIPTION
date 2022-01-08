@@ -1,9 +1,18 @@
 Package: bladerunr
-Title: What the Package Does (One Line, Title Case)
+Title: bladerunr: incisive model runs across a grid of parameters
 Version: 0.0.0.9000
-Authors@R: person("Josh", "Firth", , "drjoshfirth@gmailcom", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: 
+    person("Josh", "Firth", , "drjoshfirth@gmailcom", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3815-8789"))
+Description: bladerunr streamlines the process of searching all valid
+    combinations of model input parameters. The package enables the user
+    to set up a grid search across a variety of parameters, execute a
+    model, and cache the results. Finally, bladerunr smartly manages model
+    execution to watch for failed runs or runs that exceed a time limit
+    and deal with these according to the user's preference.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+URL: https://github.com/firthj/bladerunr
+BugReports: https://github.com/firthj/bladerunr/issues
