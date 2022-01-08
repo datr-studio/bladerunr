@@ -16,7 +16,10 @@ runr_setup(run_name, runr, pre_runrs = NULL, post_runrs = NULL)
 \item{post_runrs}{A function or list of functions to execute \emph{after} each model run. These functions should be caused for side-effects and will receive no input. Each will be executed at every iteration. Optional.}
 }
 \description{
-\code{runr_setup()} is required to set up the model runs. Its job is to specify
+\code{runr_setup()} is required to set up the model runs. Its job is to specify the functions you want to repeat for each iteration of your grid search.
+}
+\details{
+There are three types of callbacks bladerunr can use at each iteration: pre-runrs, runrs, and post-runrs. This enables the user to break up their functions into smaller chunks. It also expects that the model may involve files being generated, either as inputs, outputs, or both; the callbacks enable the user to deal with these as they wish.
 }
 \examples{
 

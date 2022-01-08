@@ -1,6 +1,8 @@
 #' Setup bladerunr
 #'
-#' `runr_setup()` is required to set up the model runs. Its job is to specify
+#' `runr_setup()` is required to set up the model runs. Its job is to specify the functions you want to repeat for each iteration of your grid search.
+#'
+#' There are three types of callbacks bladerunr can use at each iteration: pre-runrs, runrs, and post-runrs. This enables the user to break up their functions into smaller chunks. It also expects that the model may involve files being generated, either as inputs, outputs, or both; the callbacks enable the user to deal with these as they wish.
 #'
 #' @param run_name The name of the run. Used for output folder naming.
 #' @param runr A function or list of functions to be executed as the main test. Function should produce side-effects as no input or output will be held.
@@ -10,7 +12,7 @@
 #' @importFrom purrr map_lgl
 #'
 #' @export
-#' 
+#'
 #' @examples
 #'
 #' foo_before <- function(params) {
