@@ -2,6 +2,16 @@
 #'
 #'
 
+# Custom Argument Checker and Error Msg
+check_args <- function(msg, ...) {
+  invisible(if (!all(...)) {
+    stop(msg, call. = FALSE)
+  })
+}
+
+# Get name of variable
+var_name <- function(var) deparse(substitute(var))
+
 # Defaults for NULL values
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
