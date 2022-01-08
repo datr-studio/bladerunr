@@ -1,6 +1,6 @@
 #' Create a search grid
 #'
-#' `runr_params()` takes a list of name-value pairs and sets up a grid comprising all possible combinations of these values. It also provides the optional ability to filter out certain combinations through specifying conditions.
+#' `blade_params()` takes a list of name-value pairs and sets up a grid comprising all possible combinations of these values. It also provides the optional ability to filter out certain combinations through specifying conditions.
 #'
 #' This function provides a wrapper around tidyr::expand_grid and then (optionally) filters it by passing on the given conditions to dplyr::filter().
 #'
@@ -8,6 +8,7 @@
 #' @param ... Conditions to filter the grid. Optional.
 #'
 #' @import dplyr
+#' @import crayon
 #'
 #' @importFrom tidyr expand_grid
 #'
@@ -20,8 +21,8 @@
 #'   a = seq(1:3),
 #'   b = 2
 #' )
-#' runr_params(params, a > b)
-runr_params <- function(params, ...) {
+#' blade_params(params, a > b)
+blade_params <- function(params, ...) {
   if (typeof(params) != "list") {
     stop("Parameters need to be given as lists.")
   }
@@ -38,9 +39,9 @@ runr_params <- function(params, ...) {
   if (n == 0) {
     warning("This combination of parameters and conditions leads to zero test cases.", call. = FALSE)
   } else if (n == 1) {
-    message("Grid generated with 1 row.")
+    cat(green("Grid generated with " %+% blue$bold("1") %+% " row.\n"))
   } else {
-    message("Grid generated with ", nrow(.grid), " rows.")
+    cat(green("Grid generated with " %+% blue$bold(nrow(.grid)) %+% " rows.\n"))
   }
   .grid
 }

@@ -1,5 +1,5 @@
 #' @importFrom magrittr %>%
-#'
+#' @import glue
 #'
 
 # Custom Argument Checker and Error Msg
