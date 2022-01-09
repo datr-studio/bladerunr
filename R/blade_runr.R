@@ -147,8 +147,8 @@ with_time_limit <- function(time_limit, f, n, ...) {
       if (grepl("reached elapsed time limit|reached CPU time limit", e$message)) {
         # we reached timeout, apply some alternative method or do something else
         alert()
-        cat("Test run #" %+% as.character(n) %+%
-          " exceeded the time limit of " %+% as.character(time_limit) %+% " seconds\n")
+        cat(crayon::red$bold("Test run #" %+% as.character(n) %+%
+          " exceeded the time limit of " %+% as.character(time_limit) %+% " seconds\n"))
         return(NULL)
       } else {
         # error not related to timeout
