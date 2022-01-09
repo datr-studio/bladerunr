@@ -1,3 +1,7 @@
+clean_up = function() {
+  unlink("outputs", recursive = TRUE)
+}
+
 test_that("blade_runr fails politely when it should", {
   expect_error(blade_runr(list("a" = 1), use_sound = FALSE), "`grid` must be a dataframe")
 })
@@ -12,7 +16,7 @@ test_that("blade_runr executes functions", {
   post_run <- FALSE
 
   pre <- function(x) pre_run <<- TRUE
-  run <- function() run <<- TRUE
+  run <- function(...) run <<- TRUE
   post <- function(...) post_run <<- TRUE
 
   blade_setup(run_name = "test", runr = run, pre_runr = pre, post_runr = post)
@@ -27,7 +31,7 @@ test_that("blade_runr executes functions without a prerunr", {
   run <- FALSE
   post_run <- FALSE
 
-  run <- function() run <<- TRUE
+  run <- function(...) run <<- TRUE
   post <- function(...) post_run <<- TRUE
 
   blade_setup(run_name = "test", runr = run, post_runr = post)
@@ -39,7 +43,7 @@ test_that("blade_runr executes functions without a prerunr", {
 
 test_that("blade_runr executes functions without a pre or postrunr", {
   run <- FALSE
-  run <- function() run <<- TRUE
+  run <- function(...) run <<- TRUE
 
   blade_setup(run_name = "test", runr = run)
   blade_runr(data.frame(test = 1), use_sound = FALSE)
@@ -49,7 +53,7 @@ test_that("blade_runr executes functions without a pre or postrunr", {
 
 test_that("blade_runr repeats a function up to the max_attempts value", {
   runs <- 0
-  run <- function() {
+  run <- function(...) {
     runs <<- runs + 1
     1 / "a"
   }
@@ -62,7 +66,7 @@ test_that("blade_runr repeats a function up to the max_attempts value", {
 
 test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
   runs <- 0
-  run <- function() {
+  run <- function(...) {
     runs <<- runs + 1
     Sys.sleep(2)
   }
@@ -72,3 +76,5 @@ test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
 
   expect_equal(runs, 2)
 })
+
+clean_up()

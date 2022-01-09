@@ -17,7 +17,7 @@ blade_setup(
 \arguments{
 \item{run_name}{The name of the run. Used for output folder naming.}
 
-\item{runr}{A function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runr.}
+\item{runr}{A function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runr. The function will also receive the following three arguments for context: test_number, run_name, and output_dir (as specified in the setup).}
 
 \item{pre_runr}{A function to execute \emph{before} each model run. This function will each receive a list of all the model params for the given run as input. This function will be executed at every iteration. Optional.}
 

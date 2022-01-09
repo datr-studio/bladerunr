@@ -7,7 +7,7 @@
 #' Note that the primary role of the *pre_runr* argument is to cause side-effects (e.g. updating external files with parameters for a simulation run). No values are passed from it to the main runr.
 #'
 #' @param run_name The name of the run. Used for output folder naming.
-#' @param runr A function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runr.
+#' @param runr A function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runr. The function will also receive the following three arguments for context: test_number, run_name, and output_dir (as specified in the setup).
 #' @param pre_runr A function to execute *before* each model run. This function will each receive a list of all the model params for the given run as input. This function will be executed at every iteration. Optional.
 #' @param post_runr A function to execute *after* each model run. If the main runr returned a value, it will be passed on. The function will be executed at every iteration; and, if the user specifies an `output_dir`, this value will be passed to to the function as well. Optional.
 #' @param output_dir A path to be given to the `post_runrs`, if required. Optional.

@@ -78,9 +78,9 @@ blade_runr <- function(grid, use_sound = TRUE) {
     # Runr
     while (attempts < max_attempts) {
       if (!is.null(timeout)) {
-        res <- with_time_limit(timeout, runr, n)
+        res <- with_time_limit(timeout, runr, n, run_name, output_dir)
       } else {
-        res <- without_time_limit(runr, n)
+        res <- without_time_limit(runr, n, run_name, output_dir)
       }
       if (!is.null(res)) break
       attempts <- attempts + 1
@@ -130,7 +130,7 @@ save_grid <- function(grid, output_dir, run_name) {
   vroom::vroom_write(grid, paste0(file.path(output_dir, run_name), "/grid.tsv"))
 }
 
-with_time_limit <- function(time_limit, f, n, ...) {
+with_time_limit <- function(time_limit, f, n, run_name, output_dir) {
   setTimeLimit(elapsed = time_limit, transient = TRUE)
   on.exit({
     setTimeLimit(elapsed = Inf, transient = FALSE)
@@ -138,7 +138,7 @@ with_time_limit <- function(time_limit, f, n, ...) {
 
   tryCatch(
     {
-      res <- f(...)
+      res <- f(n, run_name, output_dir)
       # Functions need to return a value to confirm that they executed correctly.
       if (is.null(res)) res <- 1
       return(res)
@@ -161,10 +161,10 @@ with_time_limit <- function(time_limit, f, n, ...) {
   )
 }
 
-without_time_limit <- function(f, n, ...) {
+without_time_limit <- function(f, n, run_name, output_dir) {
   tryCatch(
     {
-      res <- f(...)
+      res <- f(n, run_name, output_dir)
       # Functions need to return a value to confirm that they executed correctly.
       if (is.null(res)) res <- 1
       return(res)
