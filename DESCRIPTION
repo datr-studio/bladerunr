@@ -23,4 +23,9 @@ Imports:
     dplyr,
     tidyr,
     magrittr,
-    purrr
+    purrr,
+    glue,
+    crayon,
+    vroom,
+    beepr,
+    stringr

@@ -7,27 +7,35 @@
 blade_setup(
   run_name,
   runr,
-  pre_runrs = NULL,
-  post_runrs = NULL,
-  output_dir = NULL
+  pre_runr = NULL,
+  post_runr = NULL,
+  output_dir = NULL,
+  timeout = NULL,
+  max_attempts = 3
 )
 }
 \arguments{
 \item{run_name}{The name of the run. Used for output folder naming.}
 
-\item{runr}{A single function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runrs.}
+\item{runr}{A function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runr.}
 
-\item{pre_runrs}{A function or list of functions to execute \emph{before} each model run. These functions should be caused for side-effects and will each receive a list of all the model params for the given run as input. Each will be executed at every iteration. Optional.}
+\item{pre_runr}{A function to execute \emph{before} each model run. This function will each receive a list of all the model params for the given run as input. This function will be executed at every iteration. Optional.}
 
-\item{post_runrs}{A function or list of functions to execute \emph{after} each model run. If the main runr returned a value, it will be passed to each of these functions. Each will be executed at every iteration; and, if the user specifies an \code{output_dir}, this value will be passed to to each function. Optional.}
+\item{post_runr}{A function to execute \emph{after} each model run. If the main runr returned a value, it will be passed on. The function will be executed at every iteration; and, if the user specifies an \code{output_dir}, this value will be passed to to the function as well. Optional.}
 
 \item{output_dir}{A path to be given to the \code{post_runrs}, if required. Optional.}
+
+\item{timeout}{An int representing the time in seconds to allow the runr. If the runr exceeds it, the function will either try again or move on depending on the \code{max_attempts} value. Optional.}
+
+\item{max_attempts}{An int specifying the number of time to attempt a run before moving on. Optional.}
 }
 \description{
 \code{blade_setup()} is required to set up the model runs. Its job is to specify the functions you want to repeat for each iteration of your grid search.
 }
 \details{
 There are three types of callbacks bladerunr can use at each iteration: pre-runrs, runrs, and post-runrs. This enables the user to break up their functions into smaller chunks. It also expects that the model may involve files being generated, either as inputs, outputs, or both; the callbacks enable the user to deal with these as they wish.
+
+Note that the primary role of the \emph{pre_runr} argument is to cause side-effects (e.g. updating external files with parameters for a simulation run). No values are passed from it to the main runr.
 }
 \examples{
 

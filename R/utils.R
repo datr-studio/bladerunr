@@ -1,6 +1,5 @@
 #' @importFrom magrittr %>%
 #' @import glue
-#'
 
 # Custom Argument Checker and Error Msg
 check_args <- function(msg, ...) {
@@ -9,30 +8,24 @@ check_args <- function(msg, ...) {
   })
 }
 
-# Get name of variable
-var_name <- function(var) deparse(substitute(var))
+null_or_condition <- function(val, cond) is.null(val) || cond
 
-# Defaults for NULL values
-`%||%` <- function(a, b) if (is.null(a)) b else a
 
-# Remove NULLs from a list
-compact <- function(x) {
-  x[!vapply(x, is.null, logical(1))]
+input <- function(prompt) {
+  if (interactive()) {
+    return(readline(prompt))
+  } else {
+    cat("\r" %+% prompt)
+    return(readLines("stdin", n = 1))
+  }
 }
 
-# Time function for speed test
-get_exec_time <- function(f, ...) {
-  st <- Sys.time()
-  f(...)
-  end <- Sys.time()
-  as.numeric(end - st, unit = "secs")
-}
-
-#' @importFrom purrr walk
-speed_test <- function(f, ...) {
-  times <- rep(-1, 1e2)
-  purrr::walk(seq_len(length(times)), function(n) {
-    times[n] <<- get_exec_time(f, ...)
-  })
-  message("Average time: ", round(mean(times), 2), " seconds")
+str_with_places <- function(n, total, decimal_points = 0) {
+  max_places <- log10(total) + 1 + decimal_points
+  if (decimal_points > 0 && !stringr::str_detect(crayon::chr(n, "\\."))) {
+    n <- paste0(chr(n), ".0")
+  } else if (n == total) {
+    max_places <- max_places
+  }
+  stringr::str_pad(n, max_places)
 }

@@ -4,13 +4,15 @@
 #'
 #' There are three types of callbacks bladerunr can use at each iteration: pre-runrs, runrs, and post-runrs. This enables the user to break up their functions into smaller chunks. It also expects that the model may involve files being generated, either as inputs, outputs, or both; the callbacks enable the user to deal with these as they wish.
 #'
+#' Note that the primary role of the *pre_runr* argument is to cause side-effects (e.g. updating external files with parameters for a simulation run). No values are passed from it to the main runr.
+#'
 #' @param run_name The name of the run. Used for output folder naming.
 #' @param runr A function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runr.
 #' @param pre_runr A function to execute *before* each model run. This function will each receive a list of all the model params for the given run as input. This function will be executed at every iteration. Optional.
 #' @param post_runr A function to execute *after* each model run. If the main runr returned a value, it will be passed on. The function will be executed at every iteration; and, if the user specifies an `output_dir`, this value will be passed to to the function as well. Optional.
 #' @param output_dir A path to be given to the `post_runrs`, if required. Optional.
-#'
-#' @importFrom purrr map_lgl
+#' @param timeout An int representing the time in seconds to allow the runr. If the runr exceeds it, the function will either try again or move on depending on the `max_attempts` value. Optional.
+#' @param max_attempts An int specifying the number of time to attempt a run before moving on. Optional.
 #'
 #' @export
 #'
@@ -27,7 +29,9 @@
 #' }
 #'
 #' blade_setup("test-run", foo_before, foo_run, foo_after, "path/to/save/outputs")
-blade_setup <- function(run_name, runr, pre_runr = NULL, post_runr = NULL, output_dir = NULL) {
+blade_setup <- function(run_name, runr, pre_runr = NULL,
+                        post_runr = NULL, output_dir = NULL,
+                        timeout = NULL, max_attempts = 3) {
   check_args(
     "`run_name` must be a character vector of length 1.",
     is.character(run_name), length(run_name) == 1
@@ -36,6 +40,13 @@ blade_setup <- function(run_name, runr, pre_runr = NULL, post_runr = NULL, outpu
     "A `runr` function is required.",
     !is.null(runr), length(runr) == 1
   )
+
+  check_args("`timeout` must be a single positive number.", is.null(timeout) || is.numeric(timeout))
+  check_args("`max_attempts` must be a single number greater than or equal to 1.", is.null(max_attempts) || is.numeric(max_attempts))
+
+  check_args("`timeout` must be a single positive number.", is.null(timeout) || timeout > 0)
+  check_args("`max_attempts` must be a single number greater than or equal to 1.", is.null(max_attempts) || max_attempts > 0)
+
 
   if (!is.null(pre_runr)) {
     check_args("`pre_runr` argument must be a function", is_function(pre_runr))
@@ -57,10 +68,10 @@ blade_setup <- function(run_name, runr, pre_runr = NULL, post_runr = NULL, outpu
   options(bladerunr_runr = runr)
   options(bladerunr_post_runr = post_runr)
   options(bladerunr_output_dir = output_dir)
+  options(bladerunr_timeout = timeout)
+  options(bladerunr_max_attempts = max_attempts)
 
-  cat(crayon::green("Setup successfull.") %+%
-    crayon::blurred("\nDefine parameters with " %+%
-      crayon::italic("blade_param") %+% " to run."))
+  cat(crayon::green("Setup complete."))
 }
 
 is_function <- function(f) typeof(f) == "closure"

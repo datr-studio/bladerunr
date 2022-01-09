@@ -6,7 +6,7 @@ test_that("blade_setup successfully stores options", {
     run_name = "test",
     pre_runr = foo,
     runr = bar,
-    post_runr = bar
+    post_runr = bar,
   )
   expect_equal(options("bladerunr_run_name")[[1]], "test")
   expect_equal(options("bladerunr_pre_runr")[[1]], foo)
@@ -52,4 +52,13 @@ test_that("blade_setup fails appropriately", {
     runr = bar,
     post_runr = bar
   ), "`pre_runr` argument must be a function")
+  expect_error(blade_setup(
+    run_name = "test", runr = bar, timeout = bar
+  ), "`timeout` must be a single positive number.")
+  expect_error(blade_setup(
+    run_name = "test", runr = bar, max_attempts = -1
+  ), "`max_attempts` must be a single number greater than or equal to 1.")
+  expect_error(blade_setup(
+    run_name = "test", runr = bar, max_attempts = "a"
+  ), "`max_attempts` must be a single number greater than or equal to 1.")
 })
