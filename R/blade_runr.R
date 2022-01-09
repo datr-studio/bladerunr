@@ -44,7 +44,7 @@ blade_runr <- function(grid, use_sound = TRUE) {
     save_grid(grid, output_dir, run_name)
   }
 
-  n_tests <- nrow(grid)
+
 
   # Prepare Runrs
   pre_runr <- getOption("bladerunr_pre_runr")
@@ -53,12 +53,19 @@ blade_runr <- function(grid, use_sound = TRUE) {
   timeout <- getOption("bladerunr_timeout")
   max_attempts <- getOption("bladerunr_max_attempts")
 
+  # Context
+  n_tests <- nrow(grid)
+  durations <- rep(NA, n_tests)
+  skipped_tests <- 0
+  start_time <- Sys.time()
+
   # Execute Search
   cat(crayon::yellow$bold("\nRunning tests...\n"))
   purrr::walk(seq_len(n_tests), function(n) {
+    iteration_start <- Sys.time()
 
     # Setup Iteration
-    announce(n, n_tests)
+    announce(n, n_tests, mean(durations, na.rm = TRUE), start_time)
     cat(crayon::blurred("\n\n// Run Output //\n"))
     row_params <- (grid[n, ])
     attempts <- 0
@@ -86,15 +93,21 @@ blade_runr <- function(grid, use_sound = TRUE) {
       }
       cat(crayon::blurred("\n// End Run Output // "))
     } else {
+      skipped_tests <- skipped_tests + 1
       cat(crayon::blurred("\n// End Run Output //\n"))
-      cat(crayon::red("Test run #" %+% chr(n) %+% " has reached the attempt threshold and will be skipped."))
+      skip_msg(n)
     }
+
+    # Final Iteration Block
+    elapsed <- Sys.time() - iteration_start
+    durations[n] <<- elapsed
+
     if (use_sound) beepr::beep(sound = 2)
   })
 
   # Final Code
   if (use_sound) beepr::beep(sound = 4)
-  cat(crayon::yellow$bold("\n\nAll tests complete.\n"))
+  final_run_msg(skipped_tests)
 }
 
 prepare_dir <- function(output_dir, run_name) {
@@ -134,11 +147,13 @@ with_time_limit <- function(time_limit, f, n, ...) {
     error = function(e) {
       if (grepl("reached elapsed time limit|reached CPU time limit", e$message)) {
         # we reached timeout, apply some alternative method or do something else
+        alert()
         cat("Test run #" %+% as.character(n) %+%
           " exceeded the time limit of " %+% as.character(time_limit) %+% " seconds\n")
         return(NULL)
       } else {
         # error not related to timeout
+        alert()
         cat(crayon::red$bold("Test run #" %+% as.character(n) %+%
           " has failed: ") %+% e[[1]] %+% "\n")
         return(NULL)
@@ -152,10 +167,11 @@ without_time_limit <- function(f, n, ...) {
     {
       res <- f(...)
       # Functions need to return a value to confirm that they executed correctly.
-      if (is.null(res)) res <<- 1
+      if (is.null(res)) res <- 1
       return(res)
     },
     error = function(e) {
+      alert()
       cat(crayon::red$bold("Test run #" %+% as.character(n) %+%
         " has failed: ") %+% e[[1]] %+% "\n")
       return(NULL)
