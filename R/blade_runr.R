@@ -99,7 +99,7 @@ blade_runr <- function(grid, use_sound = TRUE) {
     }
 
     # Final Iteration Block
-    elapsed <- Sys.time() - iteration_start
+    elapsed <- as.numeric(Sys.time() - iteration_start, unit = "secs")
     durations[n] <<- elapsed
 
     if (use_sound) beepr::beep(sound = 2)

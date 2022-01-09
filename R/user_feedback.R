@@ -4,7 +4,7 @@ announce <- function(n, n_tests, av_duration, start) {
   cat("\n\n")
   cat(crayon::yellow("Test Number: " %+% prog_n %+% " (" %+% perc %+% ")\n"))
   cat("Test Start Time: " %+% strftime(Sys.time(), "%H:%M:%S") %+% "\n")
-  cat("Average Duration: " %+% readable_duration(as.numeric(av_duration, unit = "secs")) %+% "\n")
+  cat("Average Duration: " %+% readable_duration(av_duration) %+% "\n")
   remaining <- n_tests - n
   now <- Sys.time()
   total_elapsed <- as.numeric(now - start, units = "secs")
