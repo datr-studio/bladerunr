@@ -36,8 +36,8 @@ readable_duration <- function(dur) {
   } else if (dur <= 90) {
     paste(round(dur), "seconds")
   } else if (dur < 60 * 60) {
-    paste(round(dur / 60), "minutes")
+    paste(round(dur / 60, 1), "minutes")
   } else {
-    paste(round(dur / 3600), "hours")
+    paste(round(dur / 3600, 1), "hours")
   }
 }

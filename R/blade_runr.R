@@ -130,11 +130,10 @@ save_grid <- function(grid, output_dir, run_name) {
   vroom::vroom_write(grid, paste0(file.path(output_dir, run_name), "/grid.tsv"))
 }
 
-
 with_time_limit <- function(time_limit, f, n, ...) {
-  setTimeLimit(cpu = time_limit, elapsed = time_limit, transient = TRUE)
+  setTimeLimit(elapsed = time_limit, transient = TRUE)
   on.exit({
-    setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE)
+    setTimeLimit(elapsed = Inf, transient = FALSE)
   })
 
   tryCatch(
