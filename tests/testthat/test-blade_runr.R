@@ -1,5 +1,5 @@
-clean_up = function() {
-  unlink("outputs", recursive = TRUE)
+clean_up <- function() {
+  unlink("tests/testthat/testdir", recursive = TRUE)
 }
 
 test_that("blade_runr fails politely when it should", {
@@ -75,6 +75,26 @@ test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
   blade_runr(data.frame(test = 1), use_sound = FALSE)
 
   expect_equal(runs, 2)
+})
+
+test_that("blade_runr gives the runr function the 3 expected vars", {
+  check_n <- NULL
+  check_test_name <- NULL
+  check_output_dir <- NULL
+
+  run <- function(n, test_name, output_dir) {
+    check_n <<- n
+    check_test_name <<- test_name
+    check_output_dir <<- output_dir
+  }
+
+  blade_setup(run_name = "test", runr = run, output_dir = "testdir")
+
+  blade_runr(data.frame(test = 1))
+
+  expect_equal(check_n, 1)
+  expect_equal(check_test_name, "test")
+  expect_equal(check_output_dir, "testdir")
 })
 
 clean_up()

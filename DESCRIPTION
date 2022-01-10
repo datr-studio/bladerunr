@@ -24,7 +24,6 @@ Imports:
     tidyr,
     magrittr,
     purrr,
-    glue,
     crayon,
     vroom,
     beepr,

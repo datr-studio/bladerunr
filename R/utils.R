@@ -1,5 +1,4 @@
 #' @importFrom magrittr %>%
-#' @import glue
 
 # Custom Argument Checker and Error Msg
 check_args <- function(msg, ...) {
