@@ -24,7 +24,7 @@
 #' )
 #' grid <- blade_params(params)
 #' blade_runr(grid)
-blade_runr <- function(grid, use_sound = TRUE) {
+blade_runr <- function(grid, use_sound = FALSE) {
   options("bladerunr_sound" = use_sound)
 
   check_args("`grid` must be a dataframe", any(class(grid) == "data.frame"))
@@ -114,7 +114,7 @@ prepare_dir <- function(output_dir, run_name) {
   if (!dir.exists(file.path(output_dir, run_name))) {
     dir.create(file.path(output_dir, run_name), recursive = TRUE)
   } else {
-    cat(crayon::magenta("\nThe ") %+% "'" %+% run_name %+% "'" %+% crayon::magenta(" folder already exists. Continuing will overwrite any files in it."))
+    cat(crayon::magenta("\nThe ") %+% "'" %+% run_name %+% "'" %+% crayon::magenta(" folder already exists. Continuing will overwrite any files in it.\n"))
     msg <- crayon::blue(">>>") %+% " Are you sure you want to overwrite files in " %+% crayon::blue("'" %+% run_name %+% "'") %+% "? [Y/n]: "
 
     confirm <- tolower(input(msg))
