@@ -8,10 +8,12 @@ announce <- function(n, n_tests, av_duration, start) {
   remaining <- n_tests - n
   now <- Sys.time()
   total_elapsed <- as.numeric(now - start, units = "secs")
-  est_finish <- now + (remaining * av_duration)
+  time_remaining = remaining * av_duration
+  est_finish <- now + time_remaining
   est_finish_str <- ifelse(is.na(est_finish), crayon::blurred("calculating..."), strftime(est_finish, "%H:%M"))
 
   cat("Total Time Elapsed: " %+% readable_duration(total_elapsed) %+% "\n")
+  cat("Total Time Remaining: " %+% readable_duration(time_remaining) %+% "\n")
   cat("Expected Completion: " %+% est_finish_str %+% "\n")
 }
 
@@ -20,7 +22,7 @@ alert <- function() {
 }
 
 skip_msg <- function(n) {
-  cat(crayon::red("Test run #" %+% as.character(n) %+% " has reached the attempt threshold and will be skipped."))
+  cat(crayon::red("Test run " %+% as.character(n) %+% " has reached the attempt threshold and will be skipped."))
 }
 
 final_run_msg <- function(skipped_tests) {

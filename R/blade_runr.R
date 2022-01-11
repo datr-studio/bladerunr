@@ -94,7 +94,7 @@ blade_runr <- function(grid, use_sound = FALSE) {
       cat(crayon::blurred("\n// End Run Output // "))
     } else {
       skipped_tests <- skipped_tests + 1
-      cat(crayon::blurred("\n// End Run Output //\n"))
+      cat(crayon::blurred("\n\n// End Run Output //\n"))
       skip_msg(n)
     }
 
@@ -147,13 +147,13 @@ with_time_limit <- function(time_limit, f, n, run_name, output_dir) {
       if (grepl("reached elapsed time limit|reached CPU time limit", e$message)) {
         # we reached timeout, apply some alternative method or do something else
         alert()
-        cat(crayon::red$bold("Test run #" %+% as.character(n) %+%
+        cat(crayon::red$bold("Test run " %+% as.character(n) %+%
           " exceeded the time limit of " %+% as.character(time_limit) %+% " seconds\n"))
         return(NULL)
       } else {
         # error not related to timeout
         alert()
-        cat(crayon::red$bold("Test run #" %+% as.character(n) %+%
+        cat(crayon::red$bold("Test run " %+% as.character(n) %+%
           " has failed: ") %+% e[[1]] %+% "\n")
         return(NULL)
       }
