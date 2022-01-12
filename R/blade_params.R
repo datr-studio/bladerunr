@@ -45,3 +45,10 @@ blade_params <- function(params, ...) {
   }
   .grid
 }
+
+
+blade_partition <- function(grid, from, to = NA) {
+  to <- ifelse(is.na(to), nrow(grid), to)
+  grid %>%
+    dplyr::filter(dplyr::between(from, to))
+}
