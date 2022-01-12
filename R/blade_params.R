@@ -47,8 +47,23 @@ blade_params <- function(params, ...) {
 }
 
 
+
+#' FUNCTION_TITLE
+#'
+#' FUNCTION_DESCRIPTION
+#'
+#' @param grid DESCRIPTION.
+#' @param from DESCRIPTION.
+#' @param to DESCRIPTION.
+#'
+#' @export
+#'
+#' @return RETURN_DESCRIPTION
+#' @examples
+#' # ADD_EXAMPLES_HERE
 blade_partition <- function(grid, from, to = NA) {
+  check_args("`grid` must be a data.frame with a column named test.", is.data.frame(grid))
   to <- ifelse(is.na(to), nrow(grid), to)
   grid %>%
-    dplyr::filter(dplyr::between(from, to))
+    dplyr::filter(dplyr::between(test, from, to))
 }
