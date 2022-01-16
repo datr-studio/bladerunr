@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^test\.Rproj$
 ^\.Rproj\.user$
 ^.vscode$
