@@ -11,7 +11,7 @@ blade_setup(
   post_runr = NULL,
   output_dir = NULL,
   timeout = NULL,
-  max_attempts = 3
+  max_attempts = 2
 )
 }
 \arguments{
@@ -30,12 +30,18 @@ blade_setup(
 \item{max_attempts}{An int specifying the number of time to attempt a run before moving on. Optional.}
 }
 \description{
-\code{blade_setup()} is required to set up the model runs. Its job is to specify the functions you want to repeat for each iteration of your grid search.
+\code{blade_setup()} must be called to specify the functions
+you want to repeat for each iteration of your grid search.
 }
 \details{
-There are three types of callbacks bladerunr can use at each iteration: pre-runrs, runrs, and post-runrs. This enables the user to break up their functions into smaller chunks. It also expects that the model may involve files being generated, either as inputs, outputs, or both; the callbacks enable the user to deal with these as they wish.
+There are three types of callbacks bladerunr can use at each iteration:
+pre-runrs, runrs, and post-runrs. This enables the user to break up their
+functions into smaller chunks. It also anticipates that the model may involve
+files being generated, either as inputs, outputs, or both; the callbacks
+enable the user to deal with these as they wish.
 
-Note that the primary role of the \emph{pre_runr} argument is to cause side-effects (e.g. updating external files with parameters for a simulation run). No values are passed from it to the main runr.
+Detailed explanation of how the runrs and setup works can be found at the vignette.
+\code{vignette("help", package = "bladerunr")}
 }
 \examples{
 

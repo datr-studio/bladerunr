@@ -7,7 +7,7 @@ check_args <- function(msg, ...) {
   })
 }
 
-null_or_condition <- function(val, cond) is.null(val) || cond
+null_or_condition <- function(value, cond) is.null(value) || cond
 
 
 input <- function(prompt) {

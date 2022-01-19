@@ -1,10 +1,17 @@
 #' Setup bladerunr
 #'
-#' `blade_setup()` is required to set up the model runs. Its job is to specify the functions you want to repeat for each iteration of your grid search.
+#' `blade_setup()` must be called to specify the functions
+#' you want to repeat for each iteration of your grid search.
 #'
-#' There are three types of callbacks bladerunr can use at each iteration: pre-runrs, runrs, and post-runrs. This enables the user to break up their functions into smaller chunks. It also expects that the model may involve files being generated, either as inputs, outputs, or both; the callbacks enable the user to deal with these as they wish.
+#' There are three types of callbacks bladerunr can use at each iteration:
+#' pre-runrs, runrs, and post-runrs. This enables the user to break up their
+#' functions into smaller chunks. It also anticipates that the model may involve
+#' files being generated, either as inputs, outputs, or both; the callbacks
+#' enable the user to deal with these as they wish.
 #'
-#' Note that the primary role of the *pre_runr* argument is to cause side-effects (e.g. updating external files with parameters for a simulation run). No values are passed from it to the main runr.
+#' Detailed explanation of how the runrs and setup works can be found at the vignette.
+#' \code{vignette("help", package = "bladerunr")}
+#
 #'
 #' @param run_name The name of the run. Used for output folder naming.
 #' @param runr A function to be executed as the main test. Function may produce side-effects, or return a value. Any value returned is passed to the post_runr. The function will also receive the following three arguments for context: test_number, run_name, and output_dir (as specified in the setup).
@@ -29,9 +36,14 @@
 #' }
 #'
 #' blade_setup("test-run", foo_before, foo_run, foo_after, "path/to/save/outputs")
+# source("R/user_feedback.R")
+# source("R/utils.R")
+# source("R/config.R")
 blade_setup <- function(run_name, runr, pre_runr = NULL,
                         post_runr = NULL, output_dir = NULL,
-                        timeout = NULL, max_attempts = 3) {
+                        timeout = NULL, max_attempts = 2) {
+  reset_config()
+
   check_args(
     "`run_name` must be a character vector of length 1.",
     is.character(run_name), length(run_name) == 1
@@ -41,19 +53,37 @@ blade_setup <- function(run_name, runr, pre_runr = NULL,
     !is.null(runr), length(runr) == 1
   )
 
-  check_args("`timeout` must be a single positive number.", is.null(timeout) || is.numeric(timeout))
-  check_args("`max_attempts` must be a single number greater than or equal to 1.", is.null(max_attempts) || is.numeric(max_attempts))
+  check_args(
+    "`timeout` must be a single positive number.",
+    is.null(timeout) || is.numeric(timeout)
+  )
+  check_args(
+    "`max_attempts` must be a single number greater than or equal to 1.",
+    is.null(max_attempts) || is.numeric(max_attempts)
+  )
 
-  check_args("`timeout` must be a single positive number.", is.null(timeout) || timeout > 0)
-  check_args("`max_attempts` must be a single number greater than or equal to 1.", is.null(max_attempts) || max_attempts > 0)
+  check_args(
+    "`timeout` must be a single positive number.",
+    is.null(timeout) || timeout > 0
+  )
+  check_args(
+    "`max_attempts` must be a single number greater than or equal to 1.",
+    is.null(max_attempts) || max_attempts > 0
+  )
 
 
   if (!is.null(pre_runr)) {
-    check_args("`pre_runr` argument must be a function", is_function(pre_runr))
+    check_args(
+      "`pre_runr` argument must be a function",
+      is_function(pre_runr)
+    )
   }
 
   if (!is.null(post_runr)) {
-    check_args("`post_runr` argument must be a function", is_function(post_runr))
+    check_args(
+      "`post_runr` argument must be a function",
+      is_function(post_runr)
+    )
   }
 
   if (!is.null(output_dir)) {
@@ -63,13 +93,13 @@ blade_setup <- function(run_name, runr, pre_runr = NULL,
     )
   }
 
-  options(bladerunr_run_name = run_name)
-  options(bladerunr_pre_runr = pre_runr)
-  options(bladerunr_runr = runr)
-  options(bladerunr_post_runr = post_runr)
-  options(bladerunr_output_dir = output_dir)
-  options(bladerunr_timeout = timeout)
-  options(bladerunr_max_attempts = max_attempts)
+  set_config("run_name", run_name)
+  set_config("pre_runr", pre_runr)
+  set_config("runr", runr)
+  set_config("post_runr", post_runr)
+  set_config("output_dir", output_dir)
+  set_config("timeout", timeout)
+  set_config("max_attempts", max_attempts)
 
   cat(crayon::green("Setup complete."))
 }

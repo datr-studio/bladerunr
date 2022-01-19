@@ -8,7 +8,7 @@ announce <- function(n, n_tests, av_duration, start) {
   remaining <- n_tests - n
   now <- Sys.time()
   total_elapsed <- as.numeric(now - start, units = "secs")
-  time_remaining = remaining * av_duration
+  time_remaining <- remaining * av_duration
   est_finish <- now + time_remaining
   est_finish_str <- ifelse(is.na(est_finish), crayon::blurred("calculating..."), strftime(est_finish, "%H:%M"))
 
@@ -17,9 +17,6 @@ announce <- function(n, n_tests, av_duration, start) {
   cat("Expected Completion: " %+% est_finish_str %+% "\n")
 }
 
-alert <- function() {
-  if (getOption("bladerunr_sound")) beepr::beep(sound = 5)
-}
 
 skip_msg <- function(n) {
   cat(crayon::red("Test run " %+% as.character(n) %+% " has reached the attempt threshold and will be skipped."))

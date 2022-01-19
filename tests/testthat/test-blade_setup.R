@@ -8,10 +8,10 @@ test_that("blade_setup successfully stores options", {
     runr = bar,
     post_runr = bar,
   )
-  expect_equal(options("bladerunr_run_name")[[1]], "test")
-  expect_equal(options("bladerunr_pre_runr")[[1]], foo)
-  expect_equal(options("bladerunr_runr")[[1]], bar)
-  expect_equal(options("bladerunr_post_runr")[[1]], bar)
+  expect_equal(get_config("run_name"), "test")
+  expect_equal(get_config("pre_runr"), foo)
+  expect_equal(get_config("runr"), bar)
+  expect_equal(get_config("post_runr"), bar)
 })
 
 
@@ -31,10 +31,10 @@ test_that("blade_setup can have NULL values for pre or post runners but not the 
     runr = foo,
     post_runr = NULL
   )
-  expect_equal(options("bladerunr_run_name")[[1]], "test")
-  expect_equal(options("bladerunr_pre_runr")[[1]], NULL)
-  expect_equal(options("bladerunr_runr")[[1]], foo)
-  expect_equal(options("bladerunr_post_runr")[[1]], NULL)
+  expect_equal(get_config("run_name"), "test")
+  expect_equal(get_config("pre_runr"), NULL)
+  expect_equal(get_config("runr"), foo)
+  expect_equal(get_config("post_runr"), NULL)
 })
 
 test_that("blade_setup fails appropriately", {
