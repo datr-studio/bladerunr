@@ -27,12 +27,12 @@ test_that("blade_setup can have NULL values for pre or post runners but not the 
 
   blade_setup(
     run_name = "test",
-    pre_runr = NULL,
+    pre_runr = foo,
     runr = foo,
     post_runr = NULL
   )
   expect_equal(get_config("run_name"), "test")
-  expect_equal(get_config("pre_runr"), NULL)
+  expect_equal(get_config("pre_runr"), foo)
   expect_equal(get_config("runr"), foo)
   expect_equal(get_config("post_runr"), NULL)
 })

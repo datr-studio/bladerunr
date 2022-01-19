@@ -40,6 +40,7 @@ blade_runr <- function(grid) {
   # Prepare output directory if user requested one
   output_dir <- get_config("output_dir")
   run_name <- get_config("run_name")
+  context <- list(test_n = -1, run_name = run_name, output_dir = output_dir)
   if (!is.null(output_dir)) {
     prepare_dir(output_dir, run_name)
     save_grid(grid, output_dir, run_name)
@@ -57,7 +58,7 @@ blade_runr <- function(grid) {
   max_attempts <- get_config("max_attempts")
   timeout <- get_config("timeout")
 
-  context <- list(test_n = -1, run_name = run_name, output_dir = output_dir)
+
 
   # Execute Search
   cat(crayon::yellow$bold("\nRunning tests...\n"))
@@ -96,12 +97,7 @@ blade_runr <- function(grid) {
       # Post Runr
       post_runr <- get_config("post_runr")
       if (!is.null(post_runr)) {
-        if (res == ".test_passed") {
-          # We can ignore the default message when the runr doesn't return anything.
-          post_runr(context)
-        } else {
-          post_runr(res, context)
-        }
+        post_runr(res, context)
       }
       printf("$$blurred \n// End Run Output // ")
     } else {
@@ -151,7 +147,7 @@ with_time_limit <- function(time_limit, f, params, context) {
       # f = .runr
       res <- f(params, context)
       # Functions need to return a value to confirm that they executed correctly.
-      if (is.null(res)) res <- ".test_passed"
+      if (is.null(res)) res <- list()
       return(res)
     },
     error = function(e) {
@@ -175,7 +171,7 @@ without_time_limit <- function(f, params, context) {
     {
       res <- f(params, context)
       # Functions need to return a value to confirm that they executed correctly.
-      if (is.null(res)) res <- ".test_passed"
+      if (is.null(res)) res <- list()
       return(res)
     },
     error = function(e) {

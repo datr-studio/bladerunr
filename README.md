@@ -180,16 +180,12 @@ The `post_runr` is our last callback executed at each iteration. Like
 the others, it receives the context object as its final argument; unlike
 the others, it does not receive the params but instead will be passed
 the results of the `runr`, if there were some. If your `runr` did not
-return a result, however, none will be passed on and its only argument
-will be the context.
+return a result, it will simply receive an empty list, which can be
+ignored.
 
 ``` r
 my_post_runr_with_results <- function(result, context) {
   # Do something with my results (and context)
-}
-
-my_post_runr_without_results <- function(context) {
-  # Do something with context
 }
 ```
 
@@ -234,7 +230,7 @@ blade_runr(grid)
 #> 
 #> 
 #> Test Number:  1/20 (5%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
@@ -245,209 +241,209 @@ blade_runr(grid)
 #> // End Run Output // 
 #> 
 #> Test Number:  2/20 (10%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number:  3/20 (15%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number:  4/20 (20%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number:  5/20 (25%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number:  6/20 (30%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number:  7/20 (35%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number:  8/20 (40%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number:  9/20 (45%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 10/20 (50%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 11/20 (55%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 12/20 (60%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 13/20 (65%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 14/20 (70%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 15/20 (75%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 16/20 (80%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 17/20 (85%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 18/20 (90%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 19/20 (95%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
 #> // End Run Output // 
 #> 
 #> Test Number: 20/20 (100%)
-#> Test Start Time: 22:17:00
+#> Test Start Time: 22:33:24
 #> Average Duration: calculating...
 #> Total Time Elapsed: calculating...
 #> Total Time Remaining: calculating...
-#> Expected Completion: 22:17
+#> Expected Completion: 22:33
 #> 
 #> 
 #> // Run Output //
