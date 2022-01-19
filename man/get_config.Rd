@@ -8,8 +8,6 @@ get_config(attr)
 }
 \arguments{
 \item{attr}{Name of attribute to get/set}
-
-\item{value}{Value for named attribute}
 }
 \description{
 \code{Set_config} manages the internal configuration for bladerunr.

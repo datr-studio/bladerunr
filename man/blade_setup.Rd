@@ -40,8 +40,7 @@ functions into smaller chunks. It also anticipates that the model may involve
 files being generated, either as inputs, outputs, or both; the callbacks
 enable the user to deal with these as they wish.
 
-Detailed explanation of how the runrs and setup works can be found at the vignette.
-\code{vignette("help", package = "bladerunr")}
+Detailed explanation of how the runrs and setup works can be found at the README.
 }
 \examples{
 
