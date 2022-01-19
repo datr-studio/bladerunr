@@ -15,17 +15,7 @@ You can install the development version of bladerunr from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("firthj/bladerunr")
-#> Downloading GitHub repo firthj/bladerunr@HEAD
-#> Skipping 1 packages ahead of CRAN: datr
-#> * checking for file ‘/private/var/folders/b0/gtgr_jys3yj5jx70g8tympjr0000gn/T/RtmpzJ8tpR/remotes79f72da8cf0c/datr-studio-bladerunr-f795d3f/DESCRIPTION’ ... OK
-#> * preparing ‘bladerunr’:
-#> * checking DESCRIPTION meta-information ... OK
-#> * checking for LF line-endings in source and make files and shell scripts
-#> * checking for empty or unneeded directories
-#> * building ‘bladerunr_0.0.0.9000.tar.gz’
-#> Installing package into '/private/var/folders/b0/gtgr_jys3yj5jx70g8tympjr0000gn/T/Rtmpj1zQiM/temp_libpath77c86ef19d8c'
-#> (as 'lib' is unspecified)
+# devtools::install_github("firthj/bladerunr")
 ```
 
 ## Overview
@@ -48,7 +38,7 @@ for you. To call it you’ll need to specify a few basic parameters.
 library(bladerunr)
 blade_setup(
   run_name = "my_grid_search",
-  runr = function(x) x^2,
+  runr = function(params, context) params$alpha^2,
   output_dir = "validation/outputs",
   timeout = 300,
   max_attempts = 2
@@ -92,12 +82,6 @@ occasion. Instead of ruining the whole search, `bladerunr` will try
 again as many times as you like. At the end of the run, if `bladerunr`
 was unsuccessful in completing a run, it’ll let you know and give you a
 list of those failed runs.
-
-### use\_sound
-
-`use_sound` indicates whether you’d like to hear sounds as your tests
-run. This can be useful if you’re multitasking but want to know how it’s
-going.
 
 ## Callbacks
 
@@ -213,3 +197,261 @@ Note also that `bladerunr` will not pay attention to any return values
 from this function.
 
 ## Setting up your search grid
+
+Your next task is to set up your search grid. You don’t need to do this
+with `bladerunr` (if, for example, you already have a method for
+generating one); however, `bladerunr` makes it easy.
+
+`blade_params()` takes one required argument: a list of parameters. It
+will then build a dataframe with every unique combination of those
+parameters and add a `test` column that identifies each test.
+
+Optionally, you may also specify as many conditions as you like, to
+filter out undesired combinations.
+
+``` r
+grid <- blade_params(
+  list(
+    alpha = 8.25,
+    beta = 1.3,
+    mu_1 = seq(5, 9, 1),
+    mu_2 = seq(1, 4, 1)
+  ),
+  mu_2 < mu_1,
+  mu_1 < alpha * beta
+)
+#> Grid generated with 20 rows.
+```
+
+## Run your tests
+
+You are now ready to run your tests. Here comes the easy part.
+
+``` r
+blade_runr(grid)
+#> 
+#> Running tests...
+#> 
+#> 
+#> Test Number:  1/20 (5%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: calculating...
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  2/20 (10%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  3/20 (15%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  4/20 (20%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  5/20 (25%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  6/20 (30%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  7/20 (35%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  8/20 (40%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number:  9/20 (45%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 10/20 (50%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 11/20 (55%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 12/20 (60%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 13/20 (65%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 14/20 (70%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 15/20 (75%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 16/20 (80%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 17/20 (85%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 18/20 (90%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 19/20 (95%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> Test Number: 20/20 (100%)
+#> Test Start Time: 22:17:00
+#> Average Duration: calculating...
+#> Total Time Elapsed: calculating...
+#> Total Time Remaining: calculating...
+#> Expected Completion: 22:17
+#> 
+#> 
+#> // Run Output //
+#> // End Run Output // 
+#> 
+#> All tests complete.
+```

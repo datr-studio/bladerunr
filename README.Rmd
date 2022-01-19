@@ -159,16 +159,12 @@ Optionally, you may also specify as many conditions as you like, to filter out u
 grid <- blade_params(
   list(
     alpha = 8.25,
-    t2 = 1.3,
-    t4 = 1:5,
+    beta = 1.3,
     mu_1 = seq(5, 9, 1),
-    d_1 = 10,
-    mu_2 = seq(2, 8, 1),
-    d_2 = seq(1, 5, 1),
-    beta = 1
+    mu_2 = seq(1, 4, 1)
   ),
   mu_2 < mu_1,
-  mu_1 < alpha * t2
+  mu_1 < alpha * beta
 )
 ```
 
@@ -177,6 +173,6 @@ grid <- blade_params(
 
 You are now ready to run your tests. Here comes the easy part. 
 
-```{r runr-example}
+```{r runr-example-final}
 blade_runr(grid)
 ```
