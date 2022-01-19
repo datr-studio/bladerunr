@@ -1,6 +1,6 @@
 Package: bladerunr
 Title: bladerunr: incisive model runs across a grid of parameters
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     person("Josh", "Firth", , "drjoshfirth@gmailcom", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3815-8789"))
