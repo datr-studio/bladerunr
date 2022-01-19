@@ -10,7 +10,6 @@
 
 #'
 #' @importFrom vroom vroom_write
-#' @import beepr
 #' @importFrom datr printf
 #' @importFrom stringr str_detect str_pad
 #'

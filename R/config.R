@@ -18,12 +18,10 @@ reset_config <- function() {
 }
 
 
-#' Get and Set Config
+#' Get Config
 #'
-#' These two functions manage the internal configuration for bladerunr.
-#' They are not exposed to the user.
+#' `get_config` manages the internal configuration for bladerunr.
 #'
-#' @name getset
 #'
 #' @param attr Name of attribute to get/set
 #' @param value Value for named attribute
@@ -31,7 +29,7 @@ reset_config <- function() {
 #' @return List of config settings.
 set_config <- function(attr, value) {
   if (!is.null(value)) {
-    setter_func <- eval(rlang::sym(paste0("set_", attr)))
+    setter_func <- eval(parse(text = paste0("set_", attr)))
     setter_func(value)
   }
 }
@@ -66,9 +64,17 @@ set_max_attempts <- function(max_attempts) {
 
 
 
-#' @rdname getset
-get_config <<- function(attr) {
-  getter_func <- eval(rlang::sym(paste0("get_", attr)))
+
+
+#' Set Config
+#'
+#' `Set_config` manages the internal configuration for bladerunr.
+#'
+#'
+#'
+#' @param attr Name of attribute to get/set
+get_config <- function(attr) {
+  getter_func <- eval(parse(text = paste0("get_", attr)))
   getter_func()
 }
 

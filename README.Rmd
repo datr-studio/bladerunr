@@ -1,36 +1,47 @@
 ---
-title: "Getting started with bladerunr"
-author: Josh Firth | Datr Studio
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Getting Started}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: github_document
 ---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
 )
 ```
 
-```{r setup}
-library(bladerunr)
+# bladerunr
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of bladerunr is to ...
+
+## Installation
+
+You can install the development version of bladerunr from [GitHub](https://github.com/) with:
+
+```{r }
+# install.packages("devtools")
+# devtools::install_github("firthj/bladerunr")
 ```
 
 ## Overview
 
 Put simply, `bladerunr` exists to manage large tests runs, typically across a grid of changing parameters. It is intended to balance flexibility with stablility. On the one hand, it is highly flexible so that you can execute whatever you like each run; on the other hand, `bladerunr` will manage your test outputs for your and vigiliently ensure that any tests that stall or fail don't ruin the rest of your run. 
 
-## Where do I start?
+## Where to start?
 
 Getting started with `bladerunr` is easy. Before you can start a run, you'll need to call `blade_setup()`, which will take care of the details for you. To call it you'll need to specify a few basic parameters. 
 
 ```{r blade-setup-example}
+library(bladerunr)
 blade_setup(
   run_name = "my_grid_search",
-  runr = function(x) x^2,
+  runr = function(params, context) params$alpha^2,
   output_dir = "validation/outputs",
   timeout = 300,
   max_attempts = 2
@@ -54,8 +65,6 @@ First let's get to know the straight-forward ones, and then we'll talk about cal
 `max_attempts` is the number of times to try if your runr fails. This can be useful if your model may unexpectedly fail for some reason on occasion. Instead of ruining the whole search, 
 `bladerunr` will try again as many times as you like. At the end of the run, if `bladerunr` was unsuccessful in completing a run, it'll let you know and give you a list of those failed runs. 
 
-### use_sound 
-`use_sound` indicates whether you'd like to hear sounds as your tests run. This can be useful if you're multitasking but want to know how it's going.
 
 ## Callbacks
 To make `bladerunr` flexible, it encorporates three different *callbacks* (what we call `runrs`) that can be executed at each iteration. A *callback* is simply a function that will be executed by `bladerunr`. You can specify three different types of runrs, which are described in more detail below. First, however, a word about `context`. 
@@ -140,6 +149,34 @@ Note also that `bladerunr` will not pay attention to any return values from this
 
 ## Setting up your search grid
 
+Your next task is to set up your search grid. You don't need to do this with `bladerunr` (if, for example, you already have a method for generating one); however, `bladerunr` makes it easy. 
+
+`blade_params()` takes one required argument: a list of parameters. It will then build a dataframe with every unique combination of those parameters and add a `test` column that identifies each test. 
+
+Optionally, you may also specify as many conditions as you like, to filter out undesired combinations. 
+
+```{r setup-grid-example}
+grid <- blade_params(
+  list(
+    alpha = 8.25,
+    t2 = 1.3,
+    t4 = 1:5,
+    mu_1 = seq(5, 9, 1),
+    d_1 = 10,
+    mu_2 = seq(2, 8, 1),
+    d_2 = seq(1, 5, 1),
+    beta = 1
+  ),
+  mu_2 < mu_1,
+  mu_1 < alpha * t2
+)
+```
 
 
+## Run your tests
 
+You are now ready to run your tests. Here comes the easy part. 
+
+```{r runr-example}
+blade_runr(grid)
+```
