@@ -1,6 +1,6 @@
 Package: bladerunr
 Title: bladerunr: incisive model runs across a grid of parameters
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person("Josh", "Firth", , "drjoshfirth@gmailcom", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3815-8789"))
@@ -17,8 +17,6 @@ RoxygenNote: 7.1.2
 URL: https://github.com/firthj/bladerunr
 BugReports: https://github.com/firthj/bladerunr/issues
 Suggests: 
-    knitr,
-    rmarkdown,
     tibble,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -31,4 +29,3 @@ Imports:
     vroom,
     stringr,
     datr
-VignetteBuilder: knitr
