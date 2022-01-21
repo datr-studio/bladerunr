@@ -125,7 +125,7 @@ prepare_dir <- function(output_dir, run_name) {
     dir.create(file.path(output_dir, run_name), recursive = TRUE)
   } else {
     overwrite_prompt(run_name)
-    msg <- "Are you sure you want to overwrite files in {cli::col_yellow(run_name)}? [Y/n]: "
+    msg <- "Are you sure you want to proceed? [Y/n]: "
 
     confirm <- tolower(input(msg))
     if (confirm == "y" || confirm == "") {

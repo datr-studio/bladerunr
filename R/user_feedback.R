@@ -87,8 +87,7 @@ skip_msg <- function(n) {
 #'
 
 overwrite_prompt <- function(run_name) {
-  browser()
-  cli::cli_alert_warning("The {run_name} folder already exists. Continuing will overwrite any files in it.")
+  cli::cli_alert_warning("The {cli::col_br_yellow(run_name)} folder already exists. Continuing will overwrite any files in it.")
 }
 
 # Start Msg ---------------------------------------------------------------
