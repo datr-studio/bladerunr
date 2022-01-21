@@ -13,5 +13,3 @@ reinstall <- function() {
   devtools::check()
   devtools::install()
 }
-
-devtools::load_all()
