@@ -11,7 +11,20 @@ run_test <- function(params, context) {
 execute_runr <- function(params, context) {
   tryCatch(
     {
-      get_config("runr")(params, context)
+      runr <- get_config("runr")
+      if (get_config("log_output")) {
+        print("Using log")
+        log_path <- ifelse(!is.null(get_config("output_dir")),
+          file.path(get_config("output_dir"), "runr_output.log"),
+          "runr_output.log"
+        )
+        sink(file = log_path, append = TRUE, type = "output")
+        on.exit(sink(NULL))
+        runr(params, context)
+      } else {
+        capture.output(runr(params, context), type = "output")
+      }
+
       return(TRUE)
     },
     error = function(e) {

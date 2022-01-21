@@ -4,7 +4,7 @@
 \alias{set_config}
 \title{Get Config}
 \usage{
-set_config(attr, value)
+set_config(...)
 }
 \arguments{
 \item{attr}{Name of attribute to get/set}

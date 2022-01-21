@@ -1,4 +1,5 @@
 .log <- new.env(parent = emptyenv())
+
 .log$data <- tibble::tibble(
   test_n = integer(),
   attempt = integer(),
@@ -6,6 +7,7 @@
   details = character()
 )
 
+#' @import tibble
 reset_log <- function() {
   .log$data <- tibble::tibble(
     test_n = integer(),

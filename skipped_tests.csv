@@ -1,2 +1,2 @@
 test_n	attempt	reason	details
-2	1	Runr failure	"object 'a' not found error occured attempting get_config(""runr"")(params, context)"
+1	1	Runr failure	some code mistatake error occured attempting runr(params, context)
