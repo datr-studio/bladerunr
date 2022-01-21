@@ -6,13 +6,6 @@
   details = character()
 )
 
-add_to_log <- function(...) {
-  .log$data <- tibble::add_row(
-    .log$data,
-    ...
-  )
-}
-
 reset_log <- function() {
   .log$data <- tibble::tibble(
     test_n = integer(),
@@ -21,6 +14,15 @@ reset_log <- function() {
     details = character()
   )
 }
+
+add_to_log <- function(...) {
+  .log$data <- tibble::add_row(
+    .log$data,
+    ...
+  )
+}
+
+
 
 get_log <- function() {
   .log$data

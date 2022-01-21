@@ -33,7 +33,8 @@ reset_config <- function() {
 #'
 #' @return List of config settings.
 set_config <- function(...) {
-  .config$data <- modifyList(.config$data, list(...))
+  new <- modifyList(.config$data, list(...))
+  .config$data <- new
 }
 
 

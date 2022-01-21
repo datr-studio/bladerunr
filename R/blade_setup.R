@@ -92,13 +92,15 @@ blade_setup <- function(run_name, runr, pre_runr = NULL,
     )
   }
 
-  set_config("run_name", run_name)
-  set_config("pre_runr", pre_runr)
-  set_config("runr", runr)
-  set_config("post_runr", post_runr)
-  set_config("output_dir", output_dir)
-  set_config("timeout", timeout)
-  set_config("max_attempts", max_attempts)
+  set_config(
+    run_name = run_name,
+    pre_runr = pre_runr,
+    runr = runr,
+    post_runr = post_runr,
+    output_dir = output_dir,
+    timeout = timeout,
+    max_attempts = max_attempts
+  )
 
   cli::cli_alert_success("Setup complete.")
 }
