@@ -27,97 +27,50 @@
 #' grid <- blade_params(params)
 #' blade_runr(grid)
 blade_runr <- function(grid) {
+  # Arg Checking
   check_args("blade_runr requires a dataframe grid to run.", any(class(grid) == "data.frame"))
   if (class(grid)[[1]] != "tbl_df") {
     grid <- as_tibble(grid)
   }
-
   if (is.null(get_config("runr"))) {
     cli::cli_abort("`blade_setup` must be called first to setup your runrs")
   }
 
-  # Prepare output directory if user requested one
+  # Create output dir
   output_dir <- get_config("output_dir")
-  run_name <- get_config("run_name")
-  context <- list(test_n = -1, run_name = run_name, output_dir = output_dir)
   if (!is.null(output_dir)) {
     prepare_dir(output_dir, run_name)
     save_grid(grid, output_dir, run_name)
   }
 
-
-
-  # Prepare Runrs
-
-  # Context
-  n_tests <- nrow(grid)
-  durations <- rep(NA, n_tests)
-  skipped_tests <- tibble::tibble(
-    test_n = integer(),
-    attempt = integer(),
-    reason = character(),
-    details = character()
-  )
-  start_time <- Sys.time()
+  # prepare context
+  context <- get_context()
   max_attempts <- get_config("max_attempts")
-  timeout <- get_config("timeout")
 
   # Execute Search
   opening_logo()
-  cli::cli_alert_info("Beginning tests...")
-  run_start <- Sys.time()
-  purrr::walk(seq_len(n_tests), function(n) {
-    iteration_start <- Sys.time()
+  options("cli.progress_show_after" = 0)
+  reset_log()
+  total <- nrow(grid)
+  durations <- rep(NA, total)
+  cli_progress_bar("Overall Progress", total = total)
+  for (i in seq_len(total)) {
+    start <- Sys.time()
+    show_test_update(i, start, mean(durations, na.rm = TRUE))
+    context$test_n <- i
+    context$attempt <- 0
 
-    # Setup Iteration
-    announce(n, n_tests, mean(durations, na.rm = TRUE), start_time, run_start)
-    cli::cli
-    output_open()
-    row_params <- (grid[n, ])
-    attempts <- 0
-
-    # Setup context
-
-    context$test_n <<- n
-
-    # Pre Runr
-    pre_runr <- get_config("pre_runr")
-    if (!is.null(pre_runr)) {
-      pre_runr(row_params, context)
+    while (context$attempt < max_attempts) {
+      success <- run_test(grid[i, ], context)
+      if (success) break
+      context$attempt <- context$attempt + 1
     }
-
-    # Runr
-    runr <- get_config("runr")
-    while (attempts < max_attempts) {
-      if (!is.null(timeout)) {
-        res <- with_time_limit(timeout, runr, row_params, context, attempts, skipped_tests)
-      } else {
-        res <- without_time_limit(runr, row_params, context, attempts, skipped_tests)
-      }
-      skipped_tests <<- res$skipped_tests
-      f_res <- res$f_res
-      if (res$success) break
-      attempts <- attempts + 1
-    }
-    if (attempts < max_attempts) {
-      # Post Runr
-      post_runr <- get_config("post_runr")
-      if (!is.null(post_runr)) {
-        post_runr(f_res, context)
-      }
-      output_close()
-    } else {
-      output_close()
-      skip_msg(n)
-    }
-
-    # Final Iteration Block
-    elapsed <- as.numeric(Sys.time() - iteration_start, unit = "secs")
-    durations[n] <<- elapsed
-  })
-
+    if (context$attempt == max_attempts) skip_msg(i) else success_msg(i)
+    durations[i] <- as.numeric(Sys.time() - start, units = "secs")
+    cli_progress_update()
+  }
   # Final Code
-  final_run_msg(skipped_tests)
+  final_run_msg(total)
 }
 
 prepare_dir <- function(output_dir, run_name) {
@@ -131,7 +84,6 @@ prepare_dir <- function(output_dir, run_name) {
     if (confirm == "y" || confirm == "") {
       purrr::walk(list.files(file.path(output_dir, run_name), full.names = T), unlink)
     } else {
-      cli::cli_alert_danger("Overwrite is necessary to continue. Please save the files or use a different run name.")
       stop_quietly()
     }
   }
@@ -139,67 +91,4 @@ prepare_dir <- function(output_dir, run_name) {
 
 save_grid <- function(grid, output_dir, run_name) {
   vroom::vroom_write(grid, paste0(file.path(output_dir, run_name), "/grid.tsv"))
-}
-
-with_time_limit <- function(time_limit, f, params, context, attempt, skipped_tests) {
-  setTimeLimit(elapsed = time_limit, transient = TRUE)
-  on.exit({
-    setTimeLimit(elapsed = Inf, transient = FALSE)
-  })
-
-  tryCatch(
-    {
-      f_res <- f(params, context)
-      return(list(success = TRUE, f_res = f_res, skipped_tests = skipped_tests))
-    },
-    error = function(e) {
-      if (grepl("reached elapsed time limit|reached CPU time limit", e$message)) {
-        # we reached timeout, apply some alternative method or do something else
-        timeout_msg(context$test_n, time_limit)
-        skipped_tests <- tibble::add_row(
-          skipped_tests,
-          test_n = context$test_n,
-          attempt = attempt + 1,
-          reason = "Timeout",
-          details = NA_character_
-        )
-        return(list(success = FALSE, f_res = NULL, skipped_tests = skipped_tests))
-      } else {
-        # error not related to timeout
-        msg <- conditionMessage(e)
-        call <- rlang::expr_text(unclass(e)$call)
-        error_msg(context$test_n, msg, call)
-        skipped_tests <- tibble::add_row(
-          skipped_tests,
-          test_n = context$test_n,
-          attempt = attempt + 1,
-          reason = "Runr failure",
-          details = paste0(msg, " error occured attempting ", call)
-        )
-        return(list(success = FALSE, f_res = NULL, skipped_tests = skipped_tests))
-      }
-    }
-  )
-}
-
-without_time_limit <- function(f, params, context, attempt, skipped_tests) {
-  tryCatch(
-    {
-      f_res <- f(params, context)
-      return(list(success = TRUE, f_res = f_res, skipped_tests = skipped_tests))
-    },
-    error = function(e) {
-      msg <- conditionMessage(e)
-      call <- rlang::expr_text(unclass(e)$call)
-      error_msg(context$test_n, msg, call)
-      skipped_tests <- tibble::add_row(
-        skipped_tests,
-        test_n = context$test_n,
-        attempt = attempt + 1,
-        reason = "Runr failure",
-        details = paste0(msg, " error occured attempting ", call)
-      )
-      return(list(success = FALSE, f_res = NULL, skipped_tests = skipped_tests))
-    }
-  )
 }

@@ -9,45 +9,15 @@ test_that("blade_runr fails politely if options aren't set", {
 })
 
 test_that("blade_runr executes functions", {
-  pre_run <- "not_run"
   run <- "not_run"
-  post_run <- "not_run"
-
-  pre <- function(...) pre_run <<- "pre run executed"
   run <- function(...) run <<- "run executed"
-  post <- function(...) post_run <<- "post run executed"
-
-  blade_setup(run_name = "test", runr = run, pre_runr = pre, post_runr = post)
-  blade_runr(data.frame(test = 1))
-
-  expect_equal(pre_run, "pre run executed")
-  expect_equal(run, "run executed")
-  expect_equal(post_run, "post run executed")
-})
-
-test_that("blade_runr executes functions without a prerunr", {
-  run <- FALSE
-  post_run <- FALSE
-
-  run <- function(...) run <<- TRUE
-  post <- function(...) post_run <<- TRUE
-
-  blade_setup(run_name = "test", runr = run, post_runr = post)
-  blade_runr(data.frame(test = 1))
-
-  expect_true(run)
-  expect_true(post_run)
-})
-
-test_that("blade_runr executes functions without a pre or postrunr", {
-  run <- FALSE
-  run <- function(...) run <<- TRUE
 
   blade_setup(run_name = "test", runr = run)
   blade_runr(data.frame(test = 1))
 
-  expect_true(run)
+  expect_equal(run, "run executed")
 })
+
 
 test_that("blade_runr repeats a function up to the max_attempts value", {
   runs <- 0
@@ -75,13 +45,3 @@ test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
   expect_equal(runs, 2)
 })
 
-
-
-test_that("post_runr receives results from runr", {
-  test_var <- NULL
-  foo <- function(...) "res"
-  bar <- function(res, context) test_var <<- res
-  blade_setup(run_name = "test", runr = foo, post_runr = bar)
-  blade_runr(data.frame(test = 1))
-  expect_equal(test_var, "res")
-})

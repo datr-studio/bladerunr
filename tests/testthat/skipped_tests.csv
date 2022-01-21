@@ -1,3 +1,3 @@
 test_n	attempt	reason	details
-1	1	Timeout	NA
-1	2	Timeout	NA
+1	1	Timeout	Test exceeded the time limit of 100ms
+1	2	Timeout	Test exceeded the time limit of 100ms
