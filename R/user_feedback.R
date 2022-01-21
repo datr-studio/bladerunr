@@ -1,42 +1,125 @@
-announce <- function(n, n_tests, av_duration, start) {
-  prog_n <- crayon::bold(str_with_places(n, n_tests)) %+% "/" %+% crayon::chr(n_tests)
-  perc <- str_with_places(round(n / n_tests * 100, 1), 1) %+% "%"
-  cat("\n\n")
-  cat(crayon::yellow("Test Number: " %+% prog_n %+% " (" %+% perc %+% ")\n"))
-  cat("Test Start Time: " %+% strftime(Sys.time(), "%H:%M:%S") %+% "\n")
-  cat("Average Duration: " %+% readable_duration(av_duration) %+% "\n")
+#' @import cli
+announce <- function(n, n_tests, duration, test_start, run_start) {
+  perc <- paste0(round(n / n_tests * 100, 1), "%")
   remaining <- n_tests - n
-  now <- Sys.time()
-  total_elapsed <- as.numeric(now - start, units = "secs")
-  time_remaining <- remaining * av_duration
-  est_finish <- now + time_remaining
-  est_finish_str <- ifelse(is.na(est_finish), crayon::blurred("calculating..."), strftime(est_finish, "%H:%M"))
-
-  cat("Total Time Elapsed: " %+% readable_duration(total_elapsed) %+% "\n")
-  cat("Total Time Remaining: " %+% readable_duration(time_remaining) %+% "\n")
-  cat("Expected Completion: " %+% est_finish_str %+% "\n")
-}
-
-
-skip_msg <- function(n) {
-  cat(crayon::red("Test run " %+% as.character(n) %+% " has reached the attempt threshold and will be skipped."))
-}
-
-final_run_msg <- function(skipped_tests) {
-  cat(crayon::yellow$bold("\n\nAll tests complete.\n"))
-  if (skipped_tests > 0) {
-    cat(crayon::blurred("Note: " %+% as.character(skipped_tests) %+% " failed and were skipped."))
+  test_info <- list(
+    n = n,
+    n_tests = n_tests,
+    perc = perc,
+    test_start = test_start,
+    duration = ifelse(!is.na(duration),
+      prettyunits::pretty_sec(duration, compact = TRUE),
+      cli::col_grey("calculating")
+    )
+  )
+  announce_test_info(test_info)
+  if (!is.na(duration)) {
+    now <- Sys.time()
+    time_remaining <- remaining * duration
+    end <- now + time_remaining
+    overall_info <- list(
+      rstart = run_start,
+      now = now,
+      end = end
+    )
+    announce_overall_info(overall_info)
   }
 }
 
-readable_duration <- function(dur) {
-  if (is.na(dur) | round(dur) == 0) {
-    crayon::blurred("calculating...")
-  } else if (dur <= 90) {
-    paste(round(dur), "seconds")
-  } else if (dur < 60 * 60) {
-    paste(round(dur / 60, 1), "minutes")
+
+
+#' @import prettyunits
+announce_test_info <- function(test_info) {
+  cli::cli_par()
+  cat("\n")
+  cli::cli_rule(left = cli::col_br_yellow("Test {test_info$n}/{test_info$n_tests} ({test_info$perc})"))
+  cli::cli_alert_info("Test initiated on {strftime(test_info$test_start, '%h %d at %H:%M')}")
+  cli::cli_alert_info("Average Test Duration: {test_info$duration}")
+  cli::cli_end()
+}
+
+announce_overall_info <- function(overall_info) {
+  cli::cli_par()
+  cli::cli_alert_info("Bladerunr start: {prettyunits::time_ago(overall_info$rstart)}")
+  cli::cli_alert_info(
+    "Time Remaining: {prettyunits::pretty_sec(as.numeric(overall_info$end - overall_info$now, units = 'secs'), compact = TRUE)}"
+  )
+  cli::cli_text(cli::col_br_yellow("{cli::symbol$pointer} Expected Completion: {strftime(overall_info$end, '%h %d at %H:%M')}"))
+  cli::cli_end()
+}
+
+output_open <- function() {
+  output_break("Run Output")
+}
+
+output_close <- function() {
+  output_break("End Run Output")
+}
+
+output_break <- function(msg) {
+  d <- cli::cli_div(theme = list(rule = list(
+    color = "silver",
+    "line-type" = "-"
+  )))
+  cli::cli_rule(left = cli::col_grey(msg))
+  cli_end(d)
+}
+
+# Errors ---------------------------------------------------------------
+#'
+
+timeout_msg <- function(n, time_limit) {
+  cli::cli_alert_danger("Test run {n} exceeded the time limit of {prettyunits::pretty_sec(time_limit)}.")
+}
+
+error_msg <- function(n, msg, call) {
+  cli::cli_alert_danger(
+    "Test run {n} failed due to an {.emph {msg}} error while attempting '{call}'."
+  )
+}
+
+skip_msg <- function(n) {
+  cli::cli_alert_danger(cli::col_red("Test run {n} has reached the attempt threshold and will be skipped."))
+}
+
+
+# Prompts ---------------------------------------------------------------
+#'
+
+overwrite_prompt <- function(run_name) {
+  cli::cli_alert_warning("The {run_name} folder already exists. Continuing will overwrite any files in it.")
+}
+
+# Start Msg ---------------------------------------------------------------
+#'
+
+opening_logo <- function() {
+  cat("\n")
+  d <- cli::cli_div(theme = list(rule = list(
+    color = "cyan",
+    "line-type" = "double"
+  )))
+  cli::cli_rule(left = cli::col_white("Bladerunr"))
+  cli_end(d)
+}
+
+# Final Msg ---------------------------------------------------------------
+#'
+
+#' @importFrom vroom vroom_write
+final_run_msg <- function(skipped_tests) {
+  cat("\n")
+  d <- cli::cli_div(theme = list(rule = list(
+    color = "cyan",
+    "line-type" = "double"
+  )))
+  cli::cli_rule(left = cli::col_white("Bladerunr Complete"))
+  cli_end(d)
+  if (nrow(skipped_tests) > 0) {
+    cli::cli_alert_warning(cli::col_yellow("Note: {length(skipped_tests$test_n)} test{?s} failed and {?was/were} not run."))
+    cli::cli_text(cli::col_grey("See {.emph skipped_tests.csv} for a breakdown of test failures."))
+    vroom::vroom_write(skipped_tests, "skipped_tests.csv")
   } else {
-    paste(round(dur / 3600, 1), "hours")
+    cli::cli_alert_success("All tests were completed successfully.")
   }
 }

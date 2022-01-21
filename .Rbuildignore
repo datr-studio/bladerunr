@@ -8,3 +8,5 @@
 ^dev.R$
 ^doc$
 ^Meta$
+^.Rprofile$
+^reinstall.R$

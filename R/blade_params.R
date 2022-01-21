@@ -8,7 +8,7 @@
 #' @param ... Conditions to filter the grid. Optional.
 #'
 #' @import dplyr
-#' @import crayon
+#' @import cli
 #'
 #' @importFrom tidyr expand_grid
 #'
@@ -24,10 +24,10 @@
 #' blade_params(params, a > b)
 blade_params <- function(params, ...) {
   if (typeof(params) != "list") {
-    stop("Parameters need to be given as lists.")
+    cli::cli_abort("Parameters need to be given as lists.")
   }
   if (length(params) == 0) {
-    stop("At least one parameter is required.")
+    cli::cli_abort("At least one parameter is required.")
   }
   test <- NULL
   .grid <- tidyr::expand_grid(!!!params) %>%
@@ -37,11 +37,9 @@ blade_params <- function(params, ...) {
 
   n <- nrow(.grid)
   if (n == 0) {
-    warning("This combination of parameters and conditions leads to zero test cases.", call. = FALSE)
-  } else if (n == 1) {
-    cat(green("Grid generated with " %+% blue$bold("1") %+% " row.\n"))
+    cli::cli_alert_warning("This combination of parameters and conditions leads to {cli::col_yellow('zero')} test cases.")
   } else {
-    cat(green("Grid generated with " %+% blue$bold(nrow(.grid)) %+% " rows.\n"))
+    cli::cli_alert_success("Grid generated with {cli::col_green(nrow(.grid))} {cli::qty(nrow(.grid))}row{?s}.")
   }
   .grid
 }
@@ -62,6 +60,7 @@ blade_params <- function(params, ...) {
 #' @examples
 #' # ADD_EXAMPLES_HERE
 blade_partition <- function(grid, from, to = NA) {
+  test <- NULL
   check_args("`grid` must be a data.frame with a column named test.", is.data.frame(grid))
   to <- ifelse(is.na(to), nrow(grid), to)
   grid %>%

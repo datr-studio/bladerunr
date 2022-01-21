@@ -32,8 +32,8 @@ Temporary Items
 
 
 ### Custom ###
-dev.R
 outputs/*
 inst/doc
 /doc/
 /Meta/
+dev.R

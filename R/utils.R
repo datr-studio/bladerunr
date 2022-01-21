@@ -1,30 +1,28 @@
 #' @importFrom magrittr %>%
 
 # Custom Argument Checker and Error Msg
+#' @import cli
 check_args <- function(msg, ...) {
   invisible(if (!all(...)) {
-    stop(msg, call. = FALSE)
+    cli::cli_abort(msg)
   })
 }
 
-null_or_condition <- function(value, cond) is.null(value) || cond
-
-
 input <- function(prompt) {
   if (interactive()) {
-    return(readline(prompt))
+    return(readline(cli::col_yellow(prompt)))
   } else {
-    cat("\r" %+% prompt)
+    cli::cli_text(cli::col_yellow(prompt))
     return(readLines("stdin", n = 1))
   }
 }
 
-str_with_places <- function(n, total, decimal_points = 0) {
-  max_places <- log10(total) + 1 + decimal_points
-  if (decimal_points > 0 && !stringr::str_detect(crayon::chr(n, "\\."))) {
-    n <- paste0(chr(n), ".0")
-  } else if (n == total) {
-    max_places <- max_places
-  }
-  stringr::str_pad(n, max_places)
+#' @importFrom rlang local_options
+stop_quietly <- function() {
+  rlang::local_options(options(show.error.messages = FALSE))
+  stop()
 }
+
+`%||%` <- function(a, b) ifelse(!is.null(a), a, b)
+
+`%NA%` <- function(a, b) ifelse(!is.na(a), a, b)

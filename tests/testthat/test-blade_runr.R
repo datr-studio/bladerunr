@@ -1,7 +1,7 @@
 
 
 test_that("blade_runr fails politely when it should", {
-  expect_error(blade_runr(list("a" = 1)), "`grid` must be a dataframe")
+  expect_error(blade_runr(list("a" = 1)), "blade_runr requires a dataframe grid to run.")
 })
 
 test_that("blade_runr fails politely if options aren't set", {
@@ -75,27 +75,7 @@ test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
   expect_equal(runs, 2)
 })
 
-test_that("blade_runr gives the runr function the correct context", {
-  check_n <- NULL
-  check_test_name <- NULL
-  check_output_dir <- NULL
 
-  run <- function(params, context) {
-    check_n <<- context$test_n
-    check_test_name <<- context$run_name
-    check_output_dir <<- context$output_dir
-  }
-
-  blade_setup(run_name = "test", runr = run, output_dir = "testdir")
-
-  blade_runr(data.frame(test = 1))
-
-  expect_equal(check_n, 1)
-  expect_equal(check_test_name, "test")
-  expect_equal(check_output_dir, "testdir")
-  unlink("testdir", recursive = TRUE)
-  expect_true(!dir.exists("testdir"))
-})
 
 test_that("post_runr receives results from runr", {
   test_var <- NULL

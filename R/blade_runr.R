@@ -10,7 +10,6 @@
 
 #'
 #' @importFrom vroom vroom_write
-#' @importFrom datr printf
 #' @importFrom stringr str_detect str_pad
 #'
 #' @export
@@ -28,13 +27,13 @@
 #' grid <- blade_params(params)
 #' blade_runr(grid)
 blade_runr <- function(grid) {
-  check_args("`grid` must be a dataframe", any(class(grid) == "data.frame"))
+  check_args("blade_runr requires a dataframe grid to run.", any(class(grid) == "data.frame"))
   if (class(grid)[[1]] != "tbl_df") {
     grid <- as_tibble(grid)
   }
 
   if (is.null(get_config("runr"))) {
-    stop("`blade_setup` must be called first to setup your runrs", call. = FALSE)
+    cli::cli_abort("`blade_setup` must be called first to setup your runrs")
   }
 
   # Prepare output directory if user requested one
@@ -53,21 +52,27 @@ blade_runr <- function(grid) {
   # Context
   n_tests <- nrow(grid)
   durations <- rep(NA, n_tests)
-  skipped_tests <- 0
+  skipped_tests <- tibble::tibble(
+    test_n = integer(),
+    attempt = integer(),
+    reason = character(),
+    details = character()
+  )
   start_time <- Sys.time()
   max_attempts <- get_config("max_attempts")
   timeout <- get_config("timeout")
 
-
-
   # Execute Search
-  cat(crayon::yellow$bold("\nRunning tests...\n"))
+  opening_logo()
+  cli::cli_alert_info("Beginning tests...")
+  run_start <- Sys.time()
   purrr::walk(seq_len(n_tests), function(n) {
     iteration_start <- Sys.time()
 
     # Setup Iteration
-    announce(n, n_tests, mean(durations, na.rm = TRUE), start_time)
-    printf("$$blurred \n\n// Run Output //\n")
+    announce(n, n_tests, mean(durations, na.rm = TRUE), start_time, run_start)
+    cli::cli
+    output_open()
     row_params <- (grid[n, ])
     attempts <- 0
 
@@ -85,24 +90,24 @@ blade_runr <- function(grid) {
     runr <- get_config("runr")
     while (attempts < max_attempts) {
       if (!is.null(timeout)) {
-        res <- with_time_limit(timeout, runr, row_params, context)
+        res <- with_time_limit(timeout, runr, row_params, context, attempts, skipped_tests)
       } else {
-        res <- without_time_limit(runr, row_params, context)
+        res <- without_time_limit(runr, row_params, context, attempts, skipped_tests)
       }
-      if (!is.null(res)) break
+      skipped_tests <<- res$skipped_tests
+      f_res <- res$f_res
+      if (res$success) break
       attempts <- attempts + 1
     }
-
     if (attempts < max_attempts) {
       # Post Runr
       post_runr <- get_config("post_runr")
       if (!is.null(post_runr)) {
-        post_runr(res, context)
+        post_runr(f_res, context)
       }
-      printf("$$blurred \n// End Run Output // ")
+      output_close()
     } else {
-      skipped_tests <- skipped_tests + 1
-      printf("$$blurred \n\n// End Run Output //\n")
+      output_close()
       skip_msg(n)
     }
 
@@ -119,15 +124,15 @@ prepare_dir <- function(output_dir, run_name) {
   if (!dir.exists(file.path(output_dir, run_name))) {
     dir.create(file.path(output_dir, run_name), recursive = TRUE)
   } else {
-    cat("\n")
-    printf("The {run_name} folder already exists. Continuing will overwrite any files in it.\n")
-    msg <- crayon::blue(">>>") %+% " Are you sure you want to overwrite files in " %+% crayon::blue("'" %+% run_name %+% "'") %+% "? [Y/n]: "
+    overwrite_prompt()
+    msg <- "Are you sure you want to overwrite files in {cli::col_yellow(run_name)}? [Y/n]: "
 
     confirm <- tolower(input(msg))
     if (confirm == "y" || confirm == "") {
       purrr::walk(list.files(file.path(output_dir, run_name), full.names = T), unlink)
     } else {
-      stop("Overwrite is necessary to continue. Please save the files or use a different run name.", call. = FALSE)
+      cli::cli_alert_danger("Overwrite is necessary to continue. Please save the files or use a different run name.")
+      stop_quietly()
     }
   }
 }
@@ -136,7 +141,7 @@ save_grid <- function(grid, output_dir, run_name) {
   vroom::vroom_write(grid, paste0(file.path(output_dir, run_name), "/grid.tsv"))
 }
 
-with_time_limit <- function(time_limit, f, params, context) {
+with_time_limit <- function(time_limit, f, params, context, attempt, skipped_tests) {
   setTimeLimit(elapsed = time_limit, transient = TRUE)
   on.exit({
     setTimeLimit(elapsed = Inf, transient = FALSE)
@@ -144,40 +149,57 @@ with_time_limit <- function(time_limit, f, params, context) {
 
   tryCatch(
     {
-      # f = .runr
-      res <- f(params, context)
-      # Functions need to return a value to confirm that they executed correctly.
-      if (is.null(res)) res <- list()
-      return(res)
+      f_res <- f(params, context)
+      return(list(success = TRUE, f_res = f_res, skipped_tests = skipped_tests))
     },
     error = function(e) {
       if (grepl("reached elapsed time limit|reached CPU time limit", e$message)) {
         # we reached timeout, apply some alternative method or do something else
-        cat(crayon::red$bold("Test run " %+% as.character(context$test_n) %+%
-          " exceeded the time limit of " %+% as.character(time_limit) %+% " seconds\n"))
-        return(NULL)
+        timeout_msg(context$test_n, time_limit)
+        skipped_tests <- tibble::add_row(
+          skipped_tests,
+          test_n = context$test_n,
+          attempt = attempt + 1,
+          reason = "Timeout",
+          details = NA_character_
+        )
+        return(list(success = FALSE, f_res = NULL, skipped_tests = skipped_tests))
       } else {
         # error not related to timeout
-        cat(crayon::red$bold("Test run " %+% as.character(context$test_n) %+%
-          " has failed: ") %+% e[[1]] %+% "\n")
-        return(NULL)
+        msg <- conditionMessage(e)
+        call <- rlang::expr_text(unclass(e)$call)
+        error_msg(context$test_n, msg, call)
+        skipped_tests <- tibble::add_row(
+          skipped_tests,
+          test_n = context$test_n,
+          attempt = attempt + 1,
+          reason = "Runr failure",
+          details = paste0(msg, " error occured attempting ", call)
+        )
+        return(list(success = FALSE, f_res = NULL, skipped_tests = skipped_tests))
       }
     }
   )
 }
 
-without_time_limit <- function(f, params, context) {
+without_time_limit <- function(f, params, context, attempt, skipped_tests) {
   tryCatch(
     {
-      res <- f(params, context)
-      # Functions need to return a value to confirm that they executed correctly.
-      if (is.null(res)) res <- list()
-      return(res)
+      f_res <- f(params, context)
+      return(list(success = TRUE, f_res = f_res, skipped_tests = skipped_tests))
     },
     error = function(e) {
-      cat(crayon::red$bold("Test run #" %+% as.character(context$test_n) %+%
-        " has failed: ") %+% e[[1]] %+% "\n")
-      return(NULL)
+      msg <- conditionMessage(e)
+      call <- rlang::expr_text(unclass(e)$call)
+      error_msg(context$test_n, msg, call)
+      skipped_tests <- tibble::add_row(
+        skipped_tests,
+        test_n = context$test_n,
+        attempt = attempt + 1,
+        reason = "Runr failure",
+        details = paste0(msg, " error occured attempting ", call)
+      )
+      return(list(success = FALSE, f_res = NULL, skipped_tests = skipped_tests))
     }
   )
 }

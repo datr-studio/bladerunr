@@ -100,7 +100,7 @@ blade_setup <- function(run_name, runr, pre_runr = NULL,
   set_config("timeout", timeout)
   set_config("max_attempts", max_attempts)
 
-  cat(crayon::green("Setup complete."))
+  cli::cli_alert_success("Setup complete.")
 }
 
 is_function <- function(f) typeof(f) == "closure"
