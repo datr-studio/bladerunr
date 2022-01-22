@@ -33,6 +33,7 @@ test_that("blade_runr repeats a function up to the max_attempts value", {
 })
 
 test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
+  on.exit(unlink("skipped_tests.csv"))
   runs <- 0
   run <- function(...) {
     runs <<- runs + 1
@@ -44,4 +45,3 @@ test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
 
   expect_equal(runs, 2)
 })
-

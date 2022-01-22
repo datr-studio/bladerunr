@@ -7,7 +7,7 @@ run_test <- function(params, context) {
     execute_runr(params, context)
   }
 }
-
+#' @importFrom utils capture.output
 execute_runr <- function(params, context) {
   tryCatch(
     {
@@ -19,7 +19,6 @@ execute_runr <- function(params, context) {
           "runr_output.log"
         )
         sink(file = log_path, append = TRUE, type = "output")
-        on.exit(sink(NULL))
         runr(params, context)
       } else {
         capture.output(runr(params, context), type = "output")
@@ -42,15 +41,19 @@ execute_runr <- function(params, context) {
       } else {
         # error not related to timeout
         msg <- conditionMessage(e)
-        call <- rlang::expr_text(unclass(e)$call)
-        error_msg(context$test_n, msg, call)
+        error_msg(context$test_n, msg)
         add_to_log(
           test_n = context$test_n,
           attempt = context$attempt + 1,
           reason = "Runr failure",
-          details = paste0(msg, " error occured attempting ", call)
+          details = msg
         )
         return(FALSE)
+      }
+    },
+    finally = {
+      if (sink.number() > 0) {
+        sink(NULL)
       }
     }
   )

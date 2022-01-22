@@ -10,3 +10,4 @@
 ^Meta$
 ^.Rprofile$
 ^reinstall.R$
+^\.github$

@@ -7,9 +7,7 @@
 set_config(...)
 }
 \arguments{
-\item{attr}{Name of attribute to get/set}
-
-\item{value}{Value for named attribute}
+\item{...}{name = value pairs}
 }
 \value{
 List of config settings.

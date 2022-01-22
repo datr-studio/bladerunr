@@ -25,8 +25,10 @@ reset_config <- function() {
 #' `get_config` manages the internal configuration for bladerunr.
 #'
 #'
-#' @param attr Name of attribute to get/set
-#' @param value Value for named attribute
+#' @param ... name = value pairs
+#'
+#' @importFrom utils modifyList
+#'
 #' @return List of config settings.
 set_config <- function(...) {
   .config$data <- modifyList(.config$data, list(...))
@@ -48,4 +50,3 @@ get_config <- function(attr) {
 get_context <- function() {
   .config$data[names(.config$data) %in% c("run_name", "output_dir")]
 }
-

@@ -1,2 +1,0 @@
-test_n	attempt	reason	details
-1	1	Runr failure	some code mistatake error occured attempting runr(params, context)

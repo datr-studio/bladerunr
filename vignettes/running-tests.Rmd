@@ -1,0 +1,178 @@
+---
+title: "Running Tests with Bladerunnr"
+description: >
+  Learn how to easily run tests across a grid of parameters with
+  `bladerunr`
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{running-tests}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+```
+
+It is often useful (or even necessary) to perform the same function with different inputs and test their results. This occurs commonly with simulation problems, for instance, where multiple parameters may be tested in order to validate a model. 
+
+Typically we might set up a grid and perform a grid search, and manually create a sequence of functions to execute and keep track of our results. 
+
+```{r, eval = FALSE}
+search_grid <- expand.grid(a = seq(1, 10, 0.5), b = seq(0, 1, 0.1))
+
+for (i in 1:nrow(search_grid)) {
+  # Test model
+  # Store results
+  # Rinse and repeat
+}
+```
+
+For a simple test, the above code works fine. But sometimes, it needs to be more elaborate. 
+
+What about if you wanted to filter the search grid first? Or perhaps you want to add some code to make sure you don't overwrite previous results... 
+
+Most annoyingly, what happens if some of the parameters you want to try cause the model to hang or throw errors? You have been waiting for 8 out of 12hrs only to have one combination throw an error and then you need to start again. 
+
+## Enter Bladerurn
+
+**Bladerunr** aims to take care of the details in this process. It provides you with a base platform you can trust to manage your testing process. That frees you up to focus on the test code itself. 
+
+```{r setup}
+library(bladerunr)
+library(tibble)
+suppressPackageStartupMessages(library(dplyr))
+```
+
+## Getting started is easy
+
+First, call `blade_setup()` to set the overall configuration of your test run.  
+
+```{r basic-setup}
+foo <- function(params, context) {
+  # run setup code, if necessary
+
+  # do fancy stuff
+
+  # save outputs
+}
+
+blade_setup(
+  run_name = "model-run-1",
+  runr = foo
+)
+```
+
+`blade_setup()` takes two required arguments: 
+
+* `run_name` is a human-friendly name for your test run.
+
+* `runr` is your function call, the action or set of actions that you'd like to repeat for every row in your test grid. (For now, note that it needs to accept two arguments; you'll learn more about what they are later.)
+
+## Setting up your search grid
+
+Next, we'll also want to define a search grid. 
+
+```{r basic-grid}
+grid <- blade_params(
+  list(
+    a = 1:3,
+    b = 1.5
+  )
+)
+grid
+```
+
+`blade_params()` takes one required argument: a list of parameters. It will then build a dataframe with every unique combination of those parameters and add a `test` column that identifies each test. 
+
+## Running tests
+
+Once your setup is complete, you're ready for the easy part: running tests. Simply call `blade_runr()` with your test grid and it'll take care of the rest. 
+
+```{r basic-test, eval = FALSE}
+# Not run
+blade_runr(grid)
+```
+
+## Arguments to your runr
+
+To give your function everything it needs, it will receive two arguments: `params` and `context`. 
+
+### params 
+
+At each run, `bladerunr` will take a rowwise slice of your grid, which you can use to execute your tests. 
+
+If we had the following search grid: 
+
+```{r params-example}
+grid <- tibble(a = 1:3, b = seq(10, 30, 10))
+```
+
+Then at our first iteration, our params would look like this: 
+
+```{r params-example-cont}
+grid[1, ]
+```
+
+And you can easily access values in your function using the `$`, e.g. `params$a`. 
+
+### context
+The context object is a named `list` that contains the following information:
+
+  * `test_n` (The current test being executed)
+  * `run_name` (As specified in setup)
+  * `output_dir` (a filepath version of your specified `output_dir` + the `run_name`. May be `NULL`, if not specified in `blade_setup()`)
+
+
+
+### Using `...` instead
+**Your runr function must accept these two arguments, even if you don't intend to use them.** If you don't allow for these arguments, R will tell you that you've got an `unused argument`. However, if you don't want to use them, simply add `...` to your function call, either to replace both or just the context list.
+
+
+## Adding conditions to your search grid
+
+Sometimes you may want to filter out certain combinations of your search grid. `blade_params()` makes this easy by accepting as many conditions as you like after your list of parameters. 
+
+```{r grid-with-params}
+grid <- blade_params(
+  list(
+    a = seq(1, 3, 0.5),
+    b = 1:3,
+    c = 3:1
+  ),
+  a > b,
+  c == a * b
+)
+grid
+```
+
+
+
+
+## Coping with errors
+One of the key advantages of `bladerunr` is its built in error handling. Bugs are a natural part of programming, especially when running tests with new inputs or setting up large complicated test runs. 
+
+If, however, one of your tests fails or takes too long, fear not. `bladerunr` will just roll with the punches and let you know at the end which of your tests didn't pass muster. 
+
+By default, `bladerunr` will attempt each test twice before moving on (but you can change this). If a test should fail, it will document it for you, noting both in the command line and saving the details in a csv file after the run. 
+
+You can also specify a timeout for your functions too if certain runs might take longer than you wish to wait.^[Note, however, that for a timeout to work, your function needs to allow R to regularly check back to the timeout handler. Certain functions don't allow this (e.g. `Sys.sleep()`) nor does running an external process (e.g. via a call to `system()`). However, there are workarounds; see [this stackoverflow issue](https://stackoverflow.com/questions/16576595/settimelimit-fails-to-terminate-idle-call-in-r/70640775#706407750) for more info.] Again, if any test should exceed its time limit, the details will be saved. To learn more about these settings, see the next section: *Other options*.
+
+
+## Other options
+
+There are some additional options that can be specified with `blade_setup()` to help you finetune your run. 
+
+### timeout
+`timeout` is a value in seconds representing the maximum amount of time you want to try a run. After this time is exceeded, `bladerunr` will admit defeat and move on to the next test (or, if you've specified more than one `max_attempts`, it'll try until again it reaches that max). This is helpful when you may have to include certain parameters that cause your model to run for very long time, but you'd rather skip these. 
+
+### max_attempts 
+`max_attempts` is the number of times to try if your runr fails. This can be useful if your model may unexpectedly fail for some reason on occasion. Instead of ruining the whole search, `bladerunr` will try again as many times as you like. At the end of the run, if `bladerunr` was unsuccessful in completing a run, it'll let you know and give you a list of those failed runs. 
+
+### log_outputs
+`log_outputs` allows you to capture the output of your runr call and save it in your `output_dir` (or in your working directory, if you didn't specify one). This can be useful for debugging, for example.

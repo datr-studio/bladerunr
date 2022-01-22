@@ -3,7 +3,7 @@ test_that("blade_params returns a tibble filtered by a condition", {
     a = seq(1:3),
     b = 2
   )
-  expect_equal(blade_params(params, a > b), dplyr::tibble(test = 3, a = 3, b = 2))
+  expect_equal(blade_params(params, a > b), dplyr::tibble(test = 1, a = 3, b = 2))
 })
 
 test_that("blade_params fails when it should", {

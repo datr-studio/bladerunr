@@ -77,3 +77,9 @@ blade_setup <- function(run_name, runr, output_dir = NULL,
 }
 
 is_function <- function(f) typeof(f) == "closure"
+
+safeguard_run_name <- function(x) {
+  x %>%
+    stringr::str_replace_all(" ", "_") %>%
+    tolower()
+}

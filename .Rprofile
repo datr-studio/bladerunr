@@ -4,12 +4,11 @@ if (interactive()) {
   suppressMessages(require(devtools))
 }
 
-.pkg_name <- "datr"
+.pkg_name <- "bladerunr"
 reinstall <- function() {
   if (.pkg_name %in% installed.packages()) {
     remove.packages(.pkg_name)
   }
   devtools::load_all()
-  devtools::check()
   devtools::install()
 }

@@ -39,8 +39,9 @@ blade_runr <- function(grid) {
   # Create output dir
   output_dir <- get_config("output_dir")
   if (!is.null(output_dir)) {
+    run_name <- get_config("run_name")
     prepare_dir(output_dir, run_name)
-    save_grid(grid, output_dir, run_name)
+    save_grid(grid)
   }
 
   # prepare context
@@ -52,11 +53,10 @@ blade_runr <- function(grid) {
   options("cli.progress_show_after" = 0)
   reset_log()
   total <- nrow(grid)
-  durations <- rep(NA, total)
+  test_start_time <- Sys.time()
   cli_progress_bar("Overall Progress", total = total)
   for (i in seq_len(total)) {
-    start <- Sys.time()
-    show_test_update(i, start, mean(durations, na.rm = TRUE))
+    show_test_update(i, test_start_time)
     context$test_n <- i
     context$attempt <- 0
 
@@ -66,29 +66,30 @@ blade_runr <- function(grid) {
       context$attempt <- context$attempt + 1
     }
     if (context$attempt == max_attempts) skip_msg(i) else success_msg(i)
-    durations[i] <- as.numeric(Sys.time() - start, units = "secs")
     cli_progress_update()
   }
   # Final Code
-  final_run_msg(total)
+  final_run_msg(total, test_start_time)
 }
 
 prepare_dir <- function(output_dir, run_name) {
-  if (!dir.exists(file.path(output_dir, run_name))) {
-    dir.create(file.path(output_dir, run_name), recursive = TRUE)
+  path <- file.path(output_dir, safeguard_run_name(run_name))
+  set_config("output_dir", path)
+  if (!dir.exists(path)) {
+    dir.create(path, recursive = TRUE)
   } else {
-    overwrite_prompt(run_name)
+    overwrite_prompt(path)
     msg <- "Are you sure you want to proceed? [Y/n]: "
 
     confirm <- tolower(input(msg))
     if (confirm == "y" || confirm == "") {
-      purrr::walk(list.files(file.path(output_dir, run_name), full.names = T), unlink)
+      purrr::walk(list.files(path, full.names = T), unlink)
     } else {
       stop_quietly()
     }
   }
 }
 
-save_grid <- function(grid, output_dir, run_name) {
-  vroom::vroom_write(grid, paste0(file.path(output_dir, run_name), "/grid.tsv"))
+save_grid <- function(grid) {
+  vroom::vroom_write(grid, paste0(get_config("output_dir"), "/grid.tsv"))
 }

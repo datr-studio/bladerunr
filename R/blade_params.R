@@ -31,8 +31,8 @@ blade_params <- function(params, ...) {
   }
   test <- NULL
   .grid <- tidyr::expand_grid(!!!params) %>%
-    dplyr::mutate(test = dplyr::row_number()) %>%
     dplyr::filter(...) %>%
+    dplyr::mutate(test = dplyr::row_number()) %>%
     dplyr::select(test, dplyr::everything())
 
   n <- nrow(.grid)
