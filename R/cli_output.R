@@ -28,7 +28,7 @@ overwrite_prompt <- function(path) {
 #' @import cli
 show_test_update <- function(i, start) {
   cli::cli_rule(left = cli::col_yellow("Test {i}"))
-  cli::cli_alert_info("Initiated current test at {strftime(start, '%H:%M:%S')}")
+  cli::cli_alert_info("Initiated current test at {strftime(Sys.time(), '%H:%M:%S')}")
   cli::cli_alert_info("Overall run began {prettyunits::time_ago(start)}")
 }
 
