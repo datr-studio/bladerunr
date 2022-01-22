@@ -6,6 +6,8 @@
 ## Overview
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/firthj/bladerunr/workflows/R-CMD-check/badge.svg)](https://github.com/firthj/bladerunr/actions)
 <!-- badges: end -->
 
 The goal of `bladerunr` is to make it easy to run long tests over a grid

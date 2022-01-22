@@ -13,7 +13,6 @@ execute_runr <- function(params, context) {
     {
       runr <- get_config("runr")
       if (get_config("log_output")) {
-        print("Using log")
         log_path <- ifelse(!is.null(get_config("output_dir")),
           file.path(get_config("output_dir"), "runr_output.log"),
           "runr_output.log"

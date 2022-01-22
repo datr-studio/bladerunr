@@ -33,3 +33,4 @@ test_that("blade_setup fails appropriately", {
     run_name = "test", runr = foo, max_attempts = "a"
   ), "`max_attempts` must be a single number greater than or equal to 1.")
 })
+

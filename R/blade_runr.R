@@ -74,7 +74,7 @@ blade_runr <- function(grid) {
 
 prepare_dir <- function(output_dir, run_name) {
   path <- file.path(output_dir, safeguard_run_name(run_name))
-  set_config("output_dir", path)
+  set_config(output_dir = path)
   if (!dir.exists(path)) {
     dir.create(path, recursive = TRUE)
   } else {

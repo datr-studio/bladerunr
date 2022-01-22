@@ -45,3 +45,13 @@ test_that("blade_runr catches long runs and restarts the runr up to 2 times", {
 
   expect_equal(runs, 2)
 })
+test_that("blade_setup correctly forms the output_dir", {
+  on.exit(unlink("testdir", recursive = TRUE, force = TRUE))
+  output_dir <- NULL
+  run <- function(params, context) output_dir <<- context$output_dir
+
+  blade_setup(run_name = "testname", runr = run, output_dir = "testdir")
+  blade_runr(data.frame(test = 1))
+
+  expect_equal(output_dir, "testdir/testname")
+})
