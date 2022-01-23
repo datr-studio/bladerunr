@@ -78,14 +78,8 @@ prepare_dir <- function(output_dir, run_name) {
   if (!dir.exists(path)) {
     dir.create(path, recursive = TRUE)
   } else {
-    overwrite_prompt(path)
-    msg <- "Are you sure you want to proceed? [Y/n]: "
-
-    confirm <- tolower(input(msg))
-    if (confirm == "y" || confirm == "") {
+    if (confirm_dir_overwrite(path)) {
       purrr::walk(list.files(path, full.names = T), unlink)
-    } else {
-      stop_quietly()
     }
   }
 }
