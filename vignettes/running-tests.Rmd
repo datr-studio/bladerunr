@@ -124,7 +124,7 @@ And you can easily access values in your function using the `$`, e.g. `params$a`
 ### context
 The context object is a named `list` that contains the following information:
 
-  * `test_n` (The current test being executed)
+  * `test` (The current test being executed)
   * `run_name` (As specified in setup)
   * `output_dir` (a filepath version of your specified `output_dir` + the `run_name`. May be `NULL`, if not specified in `blade_setup()`)
 

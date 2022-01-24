@@ -72,14 +72,13 @@ final_run_msg <- function(total, start) {
   cli_end(d)
   log <- get_log()
   if (nrow(log) > 0) {
-    n_failures <- length(unique(get_log()$test_n))
+    n_failures <- length(unique(get_log()$test))
     n_success <- total - n_failures
     if (n_success == 0) {
       show_absolute_failure(n_failures, elapsed)
     } else {
       show_partial_failure(n_failures, n_success, elapsed)
     }
-    vroom::vroom_write(log, "skipped_tests.csv")
   } else {
     show_complete_success(elapsed)
   }

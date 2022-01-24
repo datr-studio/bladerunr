@@ -59,7 +59,7 @@ blade_runr <- function(grid) {
   cli_progress_bar("➤ Overall Progress", total = total)
   for (i in seq_len(total)) {
     show_test_update(i, test_start_time)
-    context$test_n <- i
+    context$test <- i
     context$attempt <- 0
 
     while (context$attempt < max_attempts) {
@@ -72,6 +72,7 @@ blade_runr <- function(grid) {
   }
   # Final Code
   final_run_msg(total, test_start_time)
+  save_log(grid, output_dir)
 }
 
 prepare_dir <- function(path) {
@@ -86,4 +87,18 @@ prepare_dir <- function(path) {
 
 save_grid <- function(grid, output_dir) {
   vroom::vroom_write(grid, file.path(output_dir, "grid.tsv"))
+}
+
+save_log <- function(grid, output_dir) {
+  log <- get_log()
+  if (nrow(log) > 0) {
+    output <- log %>%
+      dplyr::left_join(grid, by = "test")
+
+    if (!is.null(output_dir)) {
+      vroom::vroom_write(output, file.path(output_dir, "skipped_tests.csv"))
+    } else {
+      vroom::vroom_write(output, "skipped_tests.csv")
+    }
+  }
 }
