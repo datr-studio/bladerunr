@@ -11,3 +11,4 @@
 ^.Rprofile$
 ^reinstall.R$
 ^\.github$
+$TODO.md$

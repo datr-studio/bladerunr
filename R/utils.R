@@ -36,7 +36,7 @@ check_type <- function(arg, exp_type) {
 
 
 confirm_dir_overwrite <- function(dir) {
-  msg <- cli::format_inline("{.path {dir}} already contains files which overwritten.")
+  msg <- cli::format_inline("{.path {dir}} already contains files which will be overwritten.")
   if (confirm_action(msg, default_yes = TRUE)) {
     return(TRUE)
   } else {
@@ -69,7 +69,7 @@ confirm_action <- function(msg, default_yes = TRUE) {
     "{cli::symbol$pointer}{cli::symbol$pointer}{cli::symbol$pointer} {.strong Do you want to continue {q} ?}"
   )
   cat(
-    cli::col_yellow("!"), cli::format_inline(msg)
+    cli::col_yellow("!"), cli::format_inline(msg), "\n"
   )
   if (interactive()) {
     res <- readline(confirmation_prompt)

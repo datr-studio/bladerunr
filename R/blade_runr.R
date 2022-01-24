@@ -40,8 +40,10 @@ blade_runr <- function(grid) {
   output_dir <- get_config("output_dir")
   if (!is.null(output_dir)) {
     run_name <- get_config("run_name")
-    prepare_dir(output_dir, run_name)
-    save_grid(grid)
+    output_dir <- file.path(output_dir, safeguard_run_name(run_name))
+    set_config(output_dir = output_dir)
+    prepare_dir(output_dir)
+    save_grid(grid, output_dir)
   }
 
   # prepare context
@@ -54,7 +56,7 @@ blade_runr <- function(grid) {
   reset_log()
   total <- nrow(grid)
   test_start_time <- Sys.time()
-  cli_progress_bar("Overall Progress", total = total)
+  cli_progress_bar("➤ Overall Progress", total = total)
   for (i in seq_len(total)) {
     show_test_update(i, test_start_time)
     context$test_n <- i
@@ -72,9 +74,7 @@ blade_runr <- function(grid) {
   final_run_msg(total, test_start_time)
 }
 
-prepare_dir <- function(output_dir, run_name) {
-  path <- file.path(output_dir, safeguard_run_name(run_name))
-  set_config(output_dir = path)
+prepare_dir <- function(path) {
   if (!dir.exists(path)) {
     dir.create(path, recursive = TRUE)
   } else {
@@ -84,6 +84,6 @@ prepare_dir <- function(output_dir, run_name) {
   }
 }
 
-save_grid <- function(grid) {
-  vroom::vroom_write(grid, paste0(get_config("output_dir"), "/grid.tsv"))
+save_grid <- function(grid, output_dir) {
+  vroom::vroom_write(grid, file.path(output_dir, "grid.tsv"))
 }
