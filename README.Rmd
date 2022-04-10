@@ -18,7 +18,9 @@ knitr::opts_chunk$set(
 ## Overview
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/firthj/bladerunr/workflows/R-CMD-check/badge.svg)](https://github.com/firthj/bladerunr/actions)
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 The goal of `bladerunr` is to make it easy to run long tests over a grid of search parameters. `bladerunr` aims to solve the following common challenges that occur with optimisation and simulation problems: 
