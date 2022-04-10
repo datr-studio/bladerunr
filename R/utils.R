@@ -27,13 +27,6 @@ stop_quietly <- function() {
 
 `%NA%` <- function(a, b) ifelse(!is.na(a), a, b)
 
-check_type <- function(arg, exp_type) {
-  arg_name <- rlang::expr_text(rlang::enexpr(arg))
-  if (!inherits(arg, exp_type)) {
-    show_var_wrong_type_error(arg, arg_name, exp_type)
-  }
-}
-
 
 confirm_dir_overwrite <- function(dir) {
   msg <- cli::format_inline("{.path {dir}} already contains files which will be overwritten.")
